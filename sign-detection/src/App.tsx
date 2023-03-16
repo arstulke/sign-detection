@@ -1,7 +1,11 @@
-import SignDetection from "./SignDetection";
+import SignDetection from "./components/SignDetection";
 
 function App() {
-	return <SignDetection fps={60} showWebcam={false} />;
+	return (
+		<div className="p-6 w-full h-full">
+			<SignDetection fps={60} showWebcam={true} />
+		</div>
+	);
 }
 
 // TODO Queue of ThreadPool should allow the definiton of a maximum capacity of waiting tasks and which to keep (first or last)

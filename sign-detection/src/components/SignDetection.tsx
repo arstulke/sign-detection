@@ -1,8 +1,9 @@
 import { useRef, useState } from "react";
 import Webcam from "react-webcam";
-import { useInterval } from "./hooks/useInterval";
-import { Frame } from "./lib/sign-detector";
-import { useSignDetector } from "./lib/useSignDetector";
+import { useInterval } from "../hooks/useInterval";
+import { Frame } from "../lib/sign-detector";
+import { useSignDetector } from "../lib/useSignDetector";
+import AspectRatioContainer from "./AspectRatioContainer";
 
 interface SignDetectionProps {
 	fps?: number;
@@ -53,10 +54,17 @@ export default function SignDetection({ fps, showWebcam }: SignDetectionProps) {
 		[signDetector, webcamRef.current],
 	);
 
-	return (
-		<>
-			<div className={showWebcam ? "" : "absolute invisible"}>
-				Webcam:
+	const webcamAspectRatio =
+		videoWidth && videoHeight ? videoWidth / videoHeight : 1;
+	const webcam = (
+		<div className={showWebcam ? "" : "absolute invisible"}>
+			<div className="absolute m-3 px-1 py-0.5 text-xl text-white bg-black">
+				Webcam
+			</div>
+			<div
+				className="max-w-full max-h-full"
+				style={{ aspectRatio: webcamAspectRatio }}
+			>
 				<Webcam
 					ref={webcamRef}
 					audio={false}
@@ -64,12 +72,32 @@ export default function SignDetection({ fps, showWebcam }: SignDetectionProps) {
 					videoConstraints={{
 						facingMode: "environment",
 					}}
+					minScreenshotWidth={videoWidth}
+					minScreenshotHeight={videoHeight}
 				/>
 			</div>
-			<div>
-				Output:
-				<canvas ref={outputCanvasRef} width={videoWidth} height={videoHeight} />
+		</div>
+	);
+
+	const output = (
+		<div>
+			<div className="absolute m-3 px-1 py-0.5 text-xl text-white bg-black">
+				Output
 			</div>
-		</>
+			<canvas
+				className="max-w-full max-h-full"
+				ref={outputCanvasRef}
+				width={videoWidth}
+				height={videoHeight}
+			/>
+		</div>
+	);
+
+	return (
+		<AspectRatioContainer
+			elementAspectRatio={webcamAspectRatio}
+			one={webcam}
+			two={output}
+		/>
 	);
 }
