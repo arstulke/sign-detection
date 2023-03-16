@@ -16,6 +16,7 @@ export function useSignDetector(listener: ProcessedFrameListener) {
 		} else {
 			return function cleanup() {
 				signDetector.stop();
+				setSignDetector(undefined);
 			};
 		}
 	}, [signDetector]);

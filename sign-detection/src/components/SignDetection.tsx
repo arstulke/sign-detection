@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import Webcam from "react-webcam";
 import { useInterval } from "../hooks/useInterval";
-import { Frame } from "../lib/sign-detector";
+import { Frame } from "../lib/types";
 import { useSignDetector } from "../lib/useSignDetector";
 import AspectRatioContainer from "./AspectRatioContainer";
 

@@ -1,32 +1,37 @@
-export type Frame = string;
+import { WorkerPool } from "../ext/thread-pool";
+import SignDetectorWorker from "./sign-detector-worker?worker";
+import { Frame, ProcessFrameInput, ProcessFrameOutput } from "./types";
 
 export type ProcessedFrameListener = (processedFrame: Frame) => void;
 
 export class SignDetector {
 	private listener: ProcessedFrameListener = () => null;
+	private readonly pool: WorkerPool;
 
-	constructor() {}
+	constructor() {
+		this.pool = new WorkerPool(SignDetectorWorker);
+	}
 
 	setProcessedFrameListener(listener: ProcessedFrameListener) {
 		this.listener = listener;
 	}
 
 	async start() {
-		// TODO implement
+		await this.pool.started();
+		await this.pool.scaleTo(1); // TODO scale to time_to_process/interval = time_to_process * frame_rate / 1000
 	}
 
 	async processFrame(frame: Frame) {
-		// TODO implement real processing
-
-		// simulates processing of the frames
-		await new Promise<void>((resolve) => {
-			setTimeout(() => resolve(), 500);
-		});
-
-		this.listener(frame);
+		const result = await this.pool.run<ProcessFrameInput, ProcessFrameOutput>(
+			"processFrame",
+			{
+				inputFrame: frame,
+			},
+		);
+		this.listener(result.outputFrame);
 	}
 
 	async stop() {
-		// TODO implement
+		await this.pool.terminate(false); // false means force termination
 	}
 }

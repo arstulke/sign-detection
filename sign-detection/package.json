@@ -4,11 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "postinstall": "npm run download-thread-pool-lib",
     "dev": "vite --port 3000 --host",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
+    "build": "npm run download-thread-pool-lib && tsc && vite build",
+    "preview": "vite preview --port 3000 --host",
     "lint": "npx rome check .",
-    "format": "npx rome format . --write"
+    "format": "npx rome format . --write",
+    "download-thread-pool-lib": "deno bundle https://deno.land/x/thread_pool@v0.0.5/mod.ts src/ext/thread-pool.js"
   },
   "dependencies": {
     "@react-hook/resize-observer": "^1.2.6",
