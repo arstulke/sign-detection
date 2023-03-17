@@ -22,14 +22,10 @@ export default function SignDetection({ fps, showWebcam }: SignDetectionProps) {
 	const [videoHeight, setVideoHeight] = useState(0);
 
 	const signDetector = useSignDetector((frame: Frame) => {
-		const image = new Image();
-		image.onload = () => {
-			const ctx = outputCanvasRef.current?.getContext("2d");
-			if (!ctx) return;
+		const ctx = outputCanvasRef.current?.getContext("2d"); // TODO cache context?
+		if (!ctx) return;
 
-			ctx.drawImage(image, 0, 0);
-		};
-		image.src = frame;
+		ctx.drawImage(frame, 0, 0);
 	});
 
 	const webcamVideo = webcamRef.current?.video;
@@ -41,14 +37,19 @@ export default function SignDetection({ fps, showWebcam }: SignDetectionProps) {
 	}
 
 	useInterval(
-		() => {
+		async () => {
 			if (!signDetector) return;
 			if (!webcamRef.current) return;
 
-			const screenshot = webcamRef.current.getScreenshot();
-			if (!screenshot) return;
+			const canvas = webcamRef.current?.getCanvas();
+			if (!canvas) return;
 
-			signDetector.processFrame(screenshot);
+			const ctx = canvas.getContext("2d"); // TODO cache this value
+			if (!ctx) return;
+
+			const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+			const imageBitmap = await createImageBitmap(imageData);
+			signDetector.processFrame(imageBitmap);
 		},
 		intervalBetweenFrames,
 		[signDetector, webcamRef.current],

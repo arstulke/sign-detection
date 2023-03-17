@@ -18,7 +18,7 @@ export class SignDetector {
 
 	async start() {
 		await this.pool.started();
-		await this.pool.scaleTo(1); // TODO scale to time_to_process/interval = time_to_process * frame_rate / 1000
+		await this.pool.scaleTo(9); // TODO scale to time_to_process/interval = time_to_process * frame_rate / 1000
 	}
 
 	async processFrame(frame: Frame) {

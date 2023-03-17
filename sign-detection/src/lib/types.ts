@@ -1,4 +1,4 @@
-export type Frame = string;
+export type Frame = ImageBitmap;
 
 export interface ProcessFrameInput {
 	inputFrame: Frame;
