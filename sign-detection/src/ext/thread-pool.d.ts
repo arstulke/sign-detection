@@ -9,6 +9,6 @@ export class WorkerPool {
 }
 
 export function exposeSingleFunction<In, Out>(
-	fn: (input: In) => Out,
+	fn: (input: In) => Out | Promise<Out>,
 	taskName: string,
 );

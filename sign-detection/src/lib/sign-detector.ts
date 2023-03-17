@@ -22,13 +22,14 @@ export class SignDetector {
 	}
 
 	async processFrame(frame: Frame) {
-		const result = await this.pool.run<ProcessFrameInput, ProcessFrameOutput>(
-			"processFrame",
-			{
-				inputFrame: frame,
-			},
-		);
-		this.listener(result.outputFrame);
+		const { outputFrame } = await this.pool.run<
+			ProcessFrameInput,
+			ProcessFrameOutput
+		>("processFrame", {
+			inputFrame: frame,
+			start: new Date().toISOString(),
+		});
+		this.listener(outputFrame);
 	}
 
 	async stop() {
