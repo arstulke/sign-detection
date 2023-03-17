@@ -4,7 +4,6 @@ import { WorkerConstructor, WorkerPool } from "./deps.ts";
 export type ProcessedFrameListener = (processedFrame: Frame) => void;
 
 export class SignDetector {
-  private listener: ProcessedFrameListener = () => null;
   private readonly pool: WorkerPool;
 
   constructor(
@@ -14,16 +13,12 @@ export class SignDetector {
     this.pool = new WorkerPool(signDetectorWorker);
   }
 
-  setProcessedFrameListener(listener: ProcessedFrameListener) {
-    this.listener = listener;
-  }
-
   async start() {
     await this.pool.started();
     await this.pool.scaleTo(this.threadCount);
   }
 
-  async processFrame(frame: Frame) {
+  async processFrame(frame: Frame): Promise<Frame> {
     const { outputFrame } = await this.pool.run<
       ProcessFrameInput,
       ProcessFrameOutput
@@ -31,7 +26,7 @@ export class SignDetector {
       inputFrame: frame,
       start: new Date().toISOString(),
     });
-    this.listener(outputFrame);
+    return outputFrame;
   }
 
   async stop() {

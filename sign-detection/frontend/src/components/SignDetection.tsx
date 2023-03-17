@@ -1,9 +1,9 @@
 import { useRef, useState } from "react";
-import Webcam from "react-webcam";
 import { useInterval } from "../hooks/useInterval";
-import { Frame } from "sign-detection-lib";
-import { useSignDetector } from "../lib/useSignDetector";
+import { useSignDetector } from "../hooks/useSignDetector";
 import AspectRatioContainer from "./AspectRatioContainer";
+import OutputCanvas, { OutputCanvasHandle } from "./OutputCanvas";
+import WebcamWrapper, { WebcamWrapperHandle } from "./WebcamWrapper";
 
 interface SignDetectionProps {
 	fps?: number;
@@ -16,52 +16,30 @@ export default function SignDetection({ fps, showWebcam }: SignDetectionProps) {
 	}
 	const intervalBetweenFrames = Math.round(1000 / fps);
 
-	const webcamRef = useRef<Webcam>(null);
-	const outputCanvasRef = useRef<HTMLCanvasElement>(null);
+	const signDetector = useSignDetector();
+	const webcamRef = useRef<WebcamWrapperHandle>(null);
+	const outputCanvasRef = useRef<OutputCanvasHandle>(null);
 
-	const signDetector = useSignDetector((frame: Frame) => {
-		const ctx = outputCanvasRef.current?.getContext("2d"); // TODO cache context?
-		if (!ctx) return;
-
-		const uint8Array = new Uint8ClampedArray(frame.buffer);
-		const imageData = new ImageData(uint8Array, frame.width, frame.height);
-		ctx.putImageData(imageData, 0, 0);
-	});
-
-	const webcamVideo = webcamRef.current?.video;
-	const [videoWidth, setVideoWidth] = useState(0);
-	const [videoHeight, setVideoHeight] = useState(0);
-	if (webcamVideo) {
-		webcamVideo.onplay = () => {
-			setVideoWidth(webcamVideo.videoWidth);
-			setVideoHeight(webcamVideo.videoHeight);
-		};
-	}
+	const [videoWidth, setVideoWidth] = useState<number>();
+	const [videoHeight, setVideoHeight] = useState<number>();
+	const [videoAspectRatio, setVideoAspectRatio] = useState<number>();
 
 	useInterval(
 		async () => {
 			if (!signDetector) return;
 			if (!webcamRef.current) return;
+			if (!outputCanvasRef.current) return;
 
-			const canvas = webcamRef.current?.getCanvas();
-			if (!canvas) return;
+			const frame = webcamRef.current.grabFrame();
+			if (!frame) return;
 
-			const ctx = canvas.getContext("2d"); // TODO cache this value
-			if (!ctx) return;
-
-			const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-			signDetector.processFrame({
-				buffer: imageData.data.buffer,
-				width: canvas.width,
-				height: canvas.height,
-			});
+			const outputFrame = await signDetector.processFrame(frame);
+			outputCanvasRef.current.drawFrame(outputFrame);
 		},
 		intervalBetweenFrames,
 		[signDetector, webcamRef.current],
 	);
 
-	const webcamAspectRatio =
-		videoWidth && videoHeight ? videoWidth / videoHeight : 1;
 	const webcam = (
 		<div className={showWebcam ? "" : "absolute invisible"}>
 			<div className="absolute m-3 px-1 py-0.5 text-xl text-white bg-black">
@@ -69,17 +47,19 @@ export default function SignDetection({ fps, showWebcam }: SignDetectionProps) {
 			</div>
 			<div
 				className="max-w-full max-h-full"
-				style={{ aspectRatio: webcamAspectRatio }}
+				style={{ aspectRatio: videoAspectRatio ?? 1 }}
 			>
-				<Webcam
+				<WebcamWrapper
 					ref={webcamRef}
-					audio={false}
-					screenshotFormat="image/jpeg"
-					videoConstraints={{
-						facingMode: "environment",
+					onVideoDimensions={({
+						videoWidth,
+						videoHeight,
+						videoAspectRatio,
+					}) => {
+						setVideoWidth(videoWidth);
+						setVideoHeight(videoHeight);
+						setVideoAspectRatio(videoAspectRatio);
 					}}
-					minScreenshotWidth={videoWidth}
-					minScreenshotHeight={videoHeight}
 				/>
 			</div>
 		</div>
@@ -90,18 +70,18 @@ export default function SignDetection({ fps, showWebcam }: SignDetectionProps) {
 			<div className="absolute m-3 px-1 py-0.5 text-xl text-white bg-black">
 				Output
 			</div>
-			<canvas
+			<OutputCanvas
 				className="max-w-full max-h-full"
 				ref={outputCanvasRef}
-				width={videoWidth}
-				height={videoHeight}
+				width={videoWidth ?? 100}
+				height={videoHeight ?? 100}
 			/>
 		</div>
 	);
 
 	return (
 		<AspectRatioContainer
-			elementAspectRatio={webcamAspectRatio}
+			elementAspectRatio={videoAspectRatio ?? 1}
 			one={webcam}
 			two={output}
 		/>
