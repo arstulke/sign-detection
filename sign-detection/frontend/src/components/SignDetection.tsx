@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import Webcam from "react-webcam";
 import { useInterval } from "../hooks/useInterval";
-import { Frame } from "../lib/types";
+import { Frame } from "sign-detection-lib";
 import { useSignDetector } from "../lib/useSignDetector";
 import AspectRatioContainer from "./AspectRatioContainer";
 
@@ -18,8 +18,6 @@ export default function SignDetection({ fps, showWebcam }: SignDetectionProps) {
 
 	const webcamRef = useRef<Webcam>(null);
 	const outputCanvasRef = useRef<HTMLCanvasElement>(null);
-	const [videoWidth, setVideoWidth] = useState(0);
-	const [videoHeight, setVideoHeight] = useState(0);
 
 	const signDetector = useSignDetector((frame: Frame) => {
 		const ctx = outputCanvasRef.current?.getContext("2d"); // TODO cache context?
@@ -31,6 +29,8 @@ export default function SignDetection({ fps, showWebcam }: SignDetectionProps) {
 	});
 
 	const webcamVideo = webcamRef.current?.video;
+	const [videoWidth, setVideoWidth] = useState(0);
+	const [videoHeight, setVideoHeight] = useState(0);
 	if (webcamVideo) {
 		webcamVideo.onplay = () => {
 			setVideoWidth(webcamVideo.videoWidth);

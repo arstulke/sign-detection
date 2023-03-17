@@ -4,19 +4,18 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "postinstall": "npm run download-thread-pool-lib",
     "dev": "vite --port 3000 --host",
-    "build": "npm run download-thread-pool-lib && tsc && vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview --port 3000 --host",
     "lint": "npx rome check .",
-    "format": "npx rome format . --write",
-    "download-thread-pool-lib": "deno bundle https://deno.land/x/thread_pool@v0.0.5/mod.ts src/ext/thread-pool.js"
+    "format": "npx rome format . --write"
   },
   "dependencies": {
     "@react-hook/resize-observer": "^1.2.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-webcam": "^7.0.1"
+    "react-webcam": "^7.0.1",
+    "sign-detection-lib": "file:../lib/npm"
   },
   "devDependencies": {
     "@types/react": "^18.0.27",
