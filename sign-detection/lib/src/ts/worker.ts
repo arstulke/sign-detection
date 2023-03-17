@@ -1,39 +1,77 @@
+// @deno-types="./wasm-build/main.d.ts"
+import {
+  __AdaptedExports,
+  __Record4,
+  instantiate as instantiateWasm,
+} from "./wasm-build/main.js";
+
 import { exposeSingleFunction } from "./deps.ts";
-import { ProcessFrameInput, ProcessFrameOutput } from "./types.ts";
+import { Frame, ProcessFrameInput, ProcessFrameOutput } from "./types.ts";
 
 export async function runWorker() {
-  // TODO prepare wasm module
-  // TODO error handling in exposeSingleFunction
-  exposeSingleFunction<ProcessFrameInput, ProcessFrameOutput>(processFrame, "processFrame");
+  const imageProcessor = new ImageProcessor();
+  await imageProcessor.loaded;
+
+  exposeSingleFunction<ProcessFrameInput, ProcessFrameOutput>(
+    (input: ProcessFrameInput) => imageProcessor.processFrameObject(input),
+    "processFrame",
+  );
 }
 
-async function processFrame({ inputFrame, start }: ProcessFrameInput) {
-  // simulating processing delay
-  await sleep(150);
+type ProcessFrameFn = (typeof __AdaptedExports)["processFrame"];
+type WasmBitmap = __Record4<undefined>;
 
-  const data = new Uint8ClampedArray(inputFrame.buffer);
-  // TODO transfer the uint8 array to webassembly
-  // TODO receiver the uint8 array from webassembly
-  return {
-    outputFrame: inputFrame,
+class ImageProcessor {
+  loaded: Promise<void>;
+
+  private processFrame: ProcessFrameFn;
+
+  constructor() {
+    this.loaded = (async () => {
+      const wasmCode = await Deno.readFile(
+        // TODO is this working with vite?
+        new URL("./wasm-build/main.wasm", import.meta.url),
+      );
+      const wasmModule = new WebAssembly.Module(wasmCode);
+      const wasmInstance = await instantiateWasm(wasmModule, {
+        env: {
+          abort: () => console.error("aborted"),
+        },
+      });
+
+      this.processFrame = wasmInstance.processFrame as ProcessFrameFn;
+    })();
+  }
+
+  async processFrameObject({
+    inputFrame,
     start,
-    end: new Date().toISOString(),
+  }: ProcessFrameInput): ProcessFrameOutput {
+    const inputImage = convertFrameToWasmBitmap(inputFrame);
+    const response = this.processFrame(inputImage);
+
+    return {
+      outputFrame: convertWasmBitmapToFrame(response.output),
+      start,
+      end: new Date().toISOString(),
+    };
+  }
+}
+
+function convertFrameToWasmBitmap(
+  { buffer, width, height }: Frame,
+): WasmBitmap {
+  return {
+    arr: new Uint8Array(buffer),
+    width,
+    height,
   };
 }
 
-// busyWaiting is not working. idk why not
-function busyWaiting(waitTimeMs: number) {
-  const start = Date.now();
-  const end = start + Math.max(0, waitTimeMs);
-  let current = null;
-  while (current == null || current < end) {
-    current = Date.now();
-  }
-  console.log(start, end, Date.now());
-}
-
-function sleep(waitTimeMs: number): Promise<void> {
-  return new Promise<void>((resolve) => {
-    setTimeout(() => resolve(), waitTimeMs);
-  });
+function convertWasmBitmapToFrame({ arr, width, height }: WasmBitmap): Frame {
+  return {
+    buffer: arr.buffer,
+    width,
+    height,
+  };
 }

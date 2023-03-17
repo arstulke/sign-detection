@@ -7,7 +7,7 @@ export class SignDetector {
   private readonly pool: WorkerPool;
 
   constructor(
-    private readonly threadCount: number,
+    private readonly threadCount: number = 1,
     signDetectorWorker: WorkerConstructor = SignDetectorWorker,
   ) {
     this.pool = new WorkerPool(signDetectorWorker);
@@ -36,6 +36,6 @@ export class SignDetector {
 
 class SignDetectorWorker extends Worker {
   constructor() {
-    super(new URL("./worker.ts", import.meta.url), { type: "module" });
+    super(new URL("./inbuilt-worker.ts", import.meta.url), { type: "module" });
   }
 }
