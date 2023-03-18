@@ -94,6 +94,7 @@ export default function SignDetection({
 	return (
 		<AspectRatioContainer
 			elementAspectRatio={videoAspectRatio ?? 1}
+			containerClasses="gap-6"
 			one={webcam}
 			two={output}
 		/>

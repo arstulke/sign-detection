@@ -3,12 +3,14 @@ import { useElementSize } from "../hooks/useElementSize";
 
 export interface AspectRatioContainerProps {
 	elementAspectRatio: number;
+	containerClasses?: string;
 	one: ReactNode;
 	two: ReactNode;
 }
 
 export default function ({
 	elementAspectRatio,
+	containerClasses,
 	one,
 	two,
 }: AspectRatioContainerProps) {
@@ -25,7 +27,7 @@ export default function ({
 
 	return (
 		<div
-			className={`w-full h-full grid ${gridDimensionClasses}`}
+			className={`w-full h-full grid ${containerClasses} ${gridDimensionClasses}`}
 			ref={containerRef}
 		>
 			{one}
