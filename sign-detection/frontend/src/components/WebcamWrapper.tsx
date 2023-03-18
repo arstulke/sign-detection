@@ -77,6 +77,7 @@ const WebcamWrapper = forwardRef(
 							0,
 							videoWidth,
 							videoHeight,
+							{ colorSpace: "srgb" },
 						);
 						return {
 							buffer: imageData.data.buffer,

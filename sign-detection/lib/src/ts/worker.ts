@@ -8,8 +8,21 @@ import {
 import { exposeSingleFunction } from "./deps.ts";
 import { Frame, ProcessFrameInput, ProcessFrameOutput } from "./types.ts";
 
-export async function runWorker() {
-  const imageProcessor = new ImageProcessor();
+type WasmModuleLoader = () => Promise<WebAssembly.Module>;
+
+export const WorkerWasmModuleLoader: WasmModuleLoader = async () => {
+  const url = new URL("./wasm-build/main.wasm", import.meta.url);
+  try {
+    return await WebAssembly.compileStreaming(fetch(url));
+  } catch {
+    // dnt-shim-ignore
+    const wasmCode = await Deno.readFile(url);
+    return WebAssembly.compile(wasmCode);
+  }
+};
+
+export async function runWorker(wasmModuleLoader?: WasmModuleLoader) {
+  const imageProcessor = new ImageProcessor(wasmModuleLoader);
   await imageProcessor.loaded;
 
   exposeSingleFunction<ProcessFrameInput, ProcessFrameOutput>(
@@ -19,20 +32,16 @@ export async function runWorker() {
 }
 
 type ProcessFrameFn = (typeof __AdaptedExports)["processFrame"];
-type WasmBitmap = __Record4<undefined>;
+type WasmBitmap = __Record4<never>;
 
 class ImageProcessor {
   loaded: Promise<void>;
 
   private processFrame: ProcessFrameFn;
 
-  constructor() {
+  constructor(wasmModuleLoader: WasmModuleLoader = WorkerWasmModuleLoader) {
     this.loaded = (async () => {
-      const wasmCode = await Deno.readFile(
-        // TODO is this working with vite?
-        new URL("./wasm-build/main.wasm", import.meta.url),
-      );
-      const wasmModule = new WebAssembly.Module(wasmCode);
+      const wasmModule = await wasmModuleLoader();
       const wasmInstance = await instantiateWasm(wasmModule, {
         env: {
           abort: () => console.error("aborted"),

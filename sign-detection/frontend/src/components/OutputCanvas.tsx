@@ -14,7 +14,7 @@ interface OutputCanvasProps {
 }
 
 export interface OutputCanvasHandle {
-	drawFrame(frame: Frame): void;
+	drawFrame(frame: Frame, start: Date): void;
 }
 
 const OutputCanvas = forwardRef(
@@ -25,7 +25,9 @@ const OutputCanvas = forwardRef(
 		const canvasRef = useRef<HTMLCanvasElement>(null);
 
 		const ctx = useMemo(() => {
-			return canvasRef.current?.getContext("2d");
+			return canvasRef.current?.getContext("2d") as
+				| (CanvasRenderingContext2D & { lastFrame: Date })
+				| undefined;
 		}, [canvasRef.current]);
 
 		useImperativeHandle(
@@ -37,12 +39,17 @@ const OutputCanvas = forwardRef(
 				if (!ctx) return defaultHandle;
 
 				return {
-					drawFrame(frame: Frame) {
+					drawFrame(frame: Frame, start: Date) {
+						// ignoring old frames
+						if (ctx.lastFrame && ctx.lastFrame > start) return;
+
+						ctx.lastFrame = start;
 						const uint8Array = new Uint8ClampedArray(frame.buffer);
 						const imageData = new ImageData(
 							uint8Array,
 							frame.width,
 							frame.height,
+							{ colorSpace: "srgb" },
 						);
 						ctx.putImageData(imageData, 0, 0);
 					},

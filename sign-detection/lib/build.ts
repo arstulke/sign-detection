@@ -30,7 +30,7 @@ await build({
   test: false,
   shims: {
     // see JS docs for overview and more options
-    deno: true,
+    deno: false,
   },
   compilerOptions: {
     lib: ["es2021", "dom"],
@@ -43,3 +43,9 @@ await build({
     type: "module",
   },
 });
+
+await Deno.mkdir("./npm/src/wasm-build/", { recursive: true });
+await Deno.copyFile(
+  "./src/ts/wasm-build/main.wasm",
+  "./npm/src/wasm-build/main.wasm",
+);

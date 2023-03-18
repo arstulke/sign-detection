@@ -8,10 +8,11 @@ function logFrame(name: string, { buffer, width, height }: Frame): void {
 }
 
 function createInputFrame() {
+  const bytesPerPixel = 4;
   const width = 3;
   const height = 3;
-  const data = new Uint8Array(width * height * 3);
-  for (let i = 0; i < width * height * 3; i += 3) {
+  const data = new Uint8Array(width * height * bytesPerPixel);
+  for (let i = 0; i < data.byteLength; i += bytesPerPixel) {
     const avg = (i + 1) * 5;
     data[i + 0] = avg - 2;
     data[i + 1] = avg;

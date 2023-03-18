@@ -18,15 +18,17 @@ export class SignDetector {
     await this.pool.scaleTo(this.threadCount);
   }
 
-  async processFrame(frame: Frame): Promise<Frame> {
-    const { outputFrame } = await this.pool.run<
+  async processFrame(
+    frame: Frame,
+  ): Promise<Pick<ProcessFrameOutput, "outputFrame" | "start" | "end">> {
+    const { outputFrame, start, end } = await this.pool.run<
       ProcessFrameInput,
       ProcessFrameOutput
     >("processFrame", {
       inputFrame: frame,
       start: new Date().toISOString(),
     });
-    return outputFrame;
+    return { outputFrame, start, end };
   }
 
   async stop() {
@@ -36,6 +38,6 @@ export class SignDetector {
 
 class SignDetectorWorker extends Worker {
   constructor() {
-    super(new URL("./inbuilt-worker.ts", import.meta.url), { type: "module" });
+    super(new URL("./builtin-worker.ts", import.meta.url), { type: "module" });
   }
 }

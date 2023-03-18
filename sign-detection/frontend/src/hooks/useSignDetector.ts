@@ -7,7 +7,7 @@ export function useSignDetector() {
 	useEffect(() => {
 		async function createSignDetector() {
 			const signDetector = new SignDetector(
-				9, // TODO scale to time_to_process/interval = time_to_process * frame_rate / 1000
+				9, // 9 is maximum on most devices. formula: time_to_process/interval = time_to_process * frame_rate / 1000
 				SignDetectorWorker,
 			);
 			await signDetector.start();

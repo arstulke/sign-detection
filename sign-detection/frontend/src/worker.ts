@@ -1,3 +1,5 @@
 import { runWorker } from "sign-detection-lib";
 
-runWorker();
+runWorker(() => {
+	return WebAssembly.compileStreaming(fetch("main.wasm"));
+});
