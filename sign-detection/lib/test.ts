@@ -2,16 +2,16 @@
 
 import { Frame, SignDetector } from "./src/ts/mod.ts";
 
-function logFrame(name: string, { buffer, width, height }: Frame): void {
+function logFrame(name: string, frame: Frame): void {
   // maybe write image to file
-  console.log("frame=" + name, { arr: new Uint8Array(buffer), width, height });
+  console.log("frame=" + name, frame);
 }
 
 function createInputFrame() {
   const bytesPerPixel = 4;
   const width = 3;
   const height = 3;
-  const data = new Uint8Array(width * height * bytesPerPixel);
+  const data = new Uint8ClampedArray(width * height * bytesPerPixel);
   for (let i = 0; i < data.byteLength; i += bytesPerPixel) {
     const avg = (i + 1) * 5;
     data[i + 0] = avg - 2;
@@ -19,7 +19,7 @@ function createInputFrame() {
     data[i + 2] = avg + 2;
   }
   const input = {
-    buffer: data.buffer,
+    arr: data,
     width,
     height,
   };

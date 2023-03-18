@@ -1,31 +1,31 @@
-class RgbBitmap {
-  arr: Uint8Array;
+class SrgbBitmap {
+  arr: Uint8ClampedArray;
   width: i32;
   height: i32;
 }
 
 class Response {
-  output: RgbBitmap;
+  output: SrgbBitmap;
 }
 
-const BYTES_PER_PIXEL = 4;
+const SRGB_BYTES_PER_PIXEL = 4;
 
 export function calculateBitmapByteLength(
   width: i32,
   height: i32,
 ): i32 {
-  return width * height * BYTES_PER_PIXEL;
+  return width * height * SRGB_BYTES_PER_PIXEL;
 }
 
-function createBitmap(width: i32, height: i32): RgbBitmap {
+function createBitmap(width: i32, height: i32): SrgbBitmap {
   const imageByteLength = calculateBitmapByteLength(width, height);
-  const arr = new Uint8Array(imageByteLength);
+  const arr = new Uint8ClampedArray(imageByteLength);
   return { arr, width, height };
 }
 
-export function processFrame(input: RgbBitmap): Response {
+export function processFrame(input: SrgbBitmap): Response {
   const output = createBitmap(input.width, input.height);
-  for (let i = 0; i < output.arr.byteLength; i += BYTES_PER_PIXEL) {
+  for (let i = 0; i < output.arr.byteLength; i += SRGB_BYTES_PER_PIXEL) {
     const r = i32(input.arr[i + 0]);
     const g = i32(input.arr[i + 1]);
     const b = i32(input.arr[i + 2]);

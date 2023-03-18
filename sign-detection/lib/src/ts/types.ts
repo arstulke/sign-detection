@@ -1,5 +1,5 @@
 export interface Frame {
-  buffer: ArrayBuffer; // TODO refactor to use Uint8Array instead of ArrayBuffer
+  arr: Uint8ClampedArray;
   width: number;
   height: number;
 }

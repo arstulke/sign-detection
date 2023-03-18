@@ -44,9 +44,8 @@ const OutputCanvas = forwardRef(
 						if (ctx.lastFrame && ctx.lastFrame > start) return;
 
 						ctx.lastFrame = start;
-						const uint8Array = new Uint8ClampedArray(frame.buffer);
 						const imageData = new ImageData(
-							uint8Array,
+							frame.arr,
 							frame.width,
 							frame.height,
 							{ colorSpace: "srgb" },

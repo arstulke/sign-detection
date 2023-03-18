@@ -56,31 +56,12 @@ class ImageProcessor {
     inputFrame,
     start,
   }: ProcessFrameInput): ProcessFrameOutput {
-    const inputImage = convertFrameToWasmBitmap(inputFrame);
-    const response = this.processFrame(inputImage);
+    const response = this.processFrame(inputFrame);
 
     return {
-      outputFrame: convertWasmBitmapToFrame(response.output),
+      outputFrame: response.output,
       start,
       end: new Date().toISOString(),
     };
   }
-}
-
-function convertFrameToWasmBitmap(
-  { buffer, width, height }: Frame,
-): WasmBitmap {
-  return {
-    arr: new Uint8Array(buffer),
-    width,
-    height,
-  };
-}
-
-function convertWasmBitmapToFrame({ arr, width, height }: WasmBitmap): Frame {
-  return {
-    buffer: arr.buffer,
-    width,
-    height,
-  };
 }
