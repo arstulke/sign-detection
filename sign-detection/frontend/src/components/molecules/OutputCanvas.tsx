@@ -7,8 +7,8 @@ import {
 } from "react";
 import { Frame } from "sign-detection-lib";
 import FpsCounter, { FpsCounterHandle } from "./FpsCounter";
-import Overlay from "./Overlay";
-import OverlayText from "./OverlayText";
+import Overlay from "../atoms/Overlay";
+import OverlayText from "../atoms/OverlayText";
 
 interface OutputCanvasProps {
 	className?: string;

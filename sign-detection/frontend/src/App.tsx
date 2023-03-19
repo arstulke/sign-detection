@@ -1,4 +1,4 @@
-import SignDetection from "./components/SignDetection";
+import SignDetection from "./components/organisms/SignDetection";
 
 function App() {
 	return (

@@ -1,12 +1,11 @@
 import { useRef, useState } from "react";
-import { useInterval } from "../hooks/useInterval";
-import { useSignDetector } from "../hooks/useSignDetector";
-import AspectRatioContainer from "./AspectRatioContainer";
-import FpsCounter, { FpsCounterHandle } from "./FpsCounter";
-import OutputCanvas, { OutputCanvasHandle } from "./OutputCanvas";
-import Overlay from "./Overlay";
-import OverlayText from "./OverlayText";
-import WebcamWrapper, { WebcamWrapperHandle } from "./WebcamWrapper";
+import { useInterval } from "../../hooks/useInterval";
+import { useSignDetector } from "../../hooks/useSignDetector";
+import AspectRatioContainer from "../atoms/AspectRatioContainer";
+import OutputCanvas, { OutputCanvasHandle } from "../molecules/OutputCanvas";
+import Overlay from "../atoms/Overlay";
+import OverlayText from "../atoms/OverlayText";
+import WebcamWrapper, { WebcamWrapperHandle } from "../molecules/WebcamWrapper";
 
 interface SignDetectionProps {
 	fps?: number;

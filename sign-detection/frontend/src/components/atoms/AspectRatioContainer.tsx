@@ -1,5 +1,5 @@
 import { ReactNode, useRef } from "react";
-import { useElementSize } from "../hooks/useElementSize";
+import { useElementSize } from "../../hooks/useElementSize";
 
 export interface AspectRatioContainerProps {
 	elementAspectRatio: number;
