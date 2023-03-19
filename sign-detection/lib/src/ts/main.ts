@@ -10,7 +10,10 @@ export class SignDetector {
     private readonly threadCount: number = 1,
     signDetectorWorker: WorkerConstructor = SignDetectorWorker,
   ) {
-    this.pool = new WorkerPool(signDetectorWorker);
+    this.pool = new WorkerPool(signDetectorWorker, {
+      maxWaitingValues: 1,
+      deleteWaitingValueAction: "first",
+    });
   }
 
   async start() {

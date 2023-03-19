@@ -35,26 +35,31 @@ export default function SignDetection({
 			if (!webcamRef.current) return;
 			if (!outputCanvasRef.current) return;
 
-			const frame = webcamRef.current.grabFrame();
-			if (!frame) return;
+			try {
+				const frame = webcamRef.current.grabFrame();
+				if (!frame) return;
 
-			const { outputFrame, start, preComputation, postComputation, end } =
-				await signDetector.processFrame(frame);
-			outputCanvasRef.current.drawFrame(outputFrame, new Date(start));
+				const { outputFrame, start, preComputation, postComputation, end } =
+					await signDetector.processFrame(frame);
+				outputCanvasRef.current.drawFrame(outputFrame, new Date(start));
 
-			if (isLoggingEnabled) {
-				const [threadPoolWait, computation, threadPoolOut] = [
-					start,
-					preComputation,
-					postComputation,
-					end,
-				]
-					.map((isoString) => new Date(isoString).getTime())
-					.map((date, i, dates) => date - dates.at(i - 1)!)
-					.slice(1);
-				console.log(
-					`processed frame, threadPoolWait=${threadPoolWait}ms, computation=${computation}ms, threadPoolOut=${threadPoolOut}ms`,
-				);
+				if (isLoggingEnabled) {
+					const [threadPoolWait, computation, threadPoolOut] = [
+						start,
+						preComputation,
+						postComputation,
+						end,
+					]
+						.map((isoString) => new Date(isoString).getTime())
+						.map((date, i, dates) => date - dates.at(i - 1)!)
+						.slice(1);
+					console.log(
+						`processed frame, threadPoolWait=${threadPoolWait}ms, computation=${computation}ms, threadPoolOut=${threadPoolOut}ms`,
+					);
+				}
+			} catch (err) {
+				if ((err as any).canceledWaiting) return;
+				console.warn(err);
 			}
 		},
 		intervalBetweenFrames,
