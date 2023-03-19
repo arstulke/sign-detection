@@ -12,5 +12,6 @@ export interface ProcessFrameInput {
 export interface ProcessFrameOutput {
   outputFrame: Frame;
   start: string;
-  end: string;
+  preComputation: string;
+  postComputation: string;
 }

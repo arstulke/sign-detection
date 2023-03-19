@@ -23,6 +23,8 @@ export interface WebcamWrapperHandle {
 	grabFrame(): Frame | null;
 }
 
+// TODO display the fps
+
 const WebcamWrapper = forwardRef(
 	(
 		{ onVideoDimensions }: WebcamWrapperProps,

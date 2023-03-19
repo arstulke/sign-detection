@@ -32,7 +32,6 @@ export async function runWorker(wasmModuleLoader?: WasmModuleLoader) {
 }
 
 type ProcessFrameFn = (typeof __AdaptedExports)["processFrame"];
-type WasmBitmap = __Record4<never>;
 
 class ImageProcessor {
   loaded: Promise<void>;
@@ -56,12 +55,16 @@ class ImageProcessor {
     inputFrame,
     start,
   }: ProcessFrameInput): ProcessFrameOutput {
+    const preComputation = new Date().toISOString();
     const response = this.processFrame(inputFrame);
+    const postComputation = new Date().toISOString();
 
+    const outputFrame: Frame = response.output;
     return {
-      outputFrame: response.output,
+      outputFrame,
       start,
-      end: new Date().toISOString(),
+      preComputation,
+      postComputation,
     };
   }
 }

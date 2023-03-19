@@ -20,15 +20,22 @@ export class SignDetector {
 
   async processFrame(
     frame: Frame,
-  ): Promise<Pick<ProcessFrameOutput, "outputFrame" | "start" | "end">> {
-    const { outputFrame, start, end } = await this.pool.run<
+  ): Promise<ProcessFrameOutput & { end: string }> {
+    const { outputFrame, start, preComputation, postComputation } = await this
+      .pool.run<
       ProcessFrameInput,
       ProcessFrameOutput
     >("processFrame", {
       inputFrame: frame,
       start: new Date().toISOString(),
     });
-    return { outputFrame, start, end };
+    return {
+      outputFrame,
+      start,
+      preComputation,
+      postComputation,
+      end: new Date().toISOString(),
+    };
   }
 
   async stop() {

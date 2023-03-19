@@ -38,15 +38,24 @@ export default function SignDetection({
 			const frame = webcamRef.current.grabFrame();
 			if (!frame) return;
 
-			const { outputFrame, start, end } = await signDetector.processFrame(
-				frame,
-			);
-			const startDate = new Date(start);
+			const { outputFrame, start, preComputation, postComputation, end } =
+				await signDetector.processFrame(frame);
+			outputCanvasRef.current.drawFrame(outputFrame, new Date(start));
+
 			if (isLoggingEnabled) {
-				const delayMs = new Date(end).getTime() - startDate.getTime();
-				console.log(`processed frame, delay=${delayMs}ms`);
+				const [threadPoolWait, computation, threadPoolOut] = [
+					start,
+					preComputation,
+					postComputation,
+					end,
+				]
+					.map((isoString) => new Date(isoString).getTime())
+					.map((date, i, dates) => date - dates.at(i - 1)!)
+					.slice(1);
+				console.log(
+					`processed frame, threadPoolWait=${threadPoolWait}ms, computation=${computation}ms, threadPoolOut=${threadPoolOut}ms`,
+				);
 			}
-			outputCanvasRef.current.drawFrame(outputFrame, startDate);
 		},
 		intervalBetweenFrames,
 		[signDetector, webcamRef.current],
