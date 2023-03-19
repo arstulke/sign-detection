@@ -2,12 +2,15 @@ import { useRef, useState } from "react";
 import { useInterval } from "../hooks/useInterval";
 import { useSignDetector } from "../hooks/useSignDetector";
 import AspectRatioContainer from "./AspectRatioContainer";
+import FpsCounter, { FpsCounterHandle } from "./FpsCounter";
 import OutputCanvas, { OutputCanvasHandle } from "./OutputCanvas";
+import Overlay from "./Overlay";
+import OverlayText from "./OverlayText";
 import WebcamWrapper, { WebcamWrapperHandle } from "./WebcamWrapper";
 
 interface SignDetectionProps {
 	fps?: number;
-	showWebcam?: boolean;
+	showWebcam: "original" | "grabbed" | "none";
 	isLoggingEnabled?: boolean;
 }
 
@@ -23,6 +26,7 @@ export default function SignDetection({
 
 	const signDetector = useSignDetector();
 	const webcamRef = useRef<WebcamWrapperHandle>(null);
+	const grabbedCanvasRef = useRef<OutputCanvasHandle>(null);
 	const outputCanvasRef = useRef<OutputCanvasHandle>(null);
 
 	const [videoWidth, setVideoWidth] = useState<number>();
@@ -38,6 +42,10 @@ export default function SignDetection({
 			try {
 				const frame = webcamRef.current.grabFrame();
 				if (!frame) return;
+
+				if (grabbedCanvasRef.current) {
+					grabbedCanvasRef.current.drawFrame(frame, new Date());
+				}
 
 				const { outputFrame, start, preComputation, postComputation, end } =
 					await signDetector.processFrame(frame);
@@ -67,12 +75,16 @@ export default function SignDetection({
 	);
 
 	const webcam = (
-		<div className={showWebcam ? "" : "absolute invisible"}>
-			<div className="absolute m-3 px-1 py-0.5 text-xl text-white bg-black">
-				Webcam
-			</div>
+		<div className={showWebcam === "none" ? "absolute invisible" : "relative"}>
+			<Overlay
+				containerClasses="w-full max-w-full max-h-full z-10"
+				containerStyles={{ aspectRatio: videoAspectRatio }}
+				topLeft={<OverlayText>Webcam</OverlayText>}
+			/>
 			<div
-				className="max-w-full max-h-full"
+				className={`max-w-full max-h-full ${
+					showWebcam !== "original" ? "absolute invisible" : ""
+				}`}
 				style={{ aspectRatio: videoAspectRatio ?? 1 }}
 			>
 				<WebcamWrapper
@@ -88,19 +100,31 @@ export default function SignDetection({
 					}}
 				/>
 			</div>
+			<OutputCanvas
+				className={`w-full max-w-full h-full max-h-full ${
+					showWebcam !== "grabbed" ? "absolute invisible" : ""
+				}`}
+				ref={grabbedCanvasRef}
+				width={videoWidth ?? 100}
+				height={videoHeight ?? 100}
+				aspectRatio={videoAspectRatio}
+			/>
 		</div>
 	);
 
 	const output = (
-		<div>
-			<div className="absolute m-3 px-1 py-0.5 text-xl text-white bg-black">
-				Output
-			</div>
+		<div className="relative">
+			<Overlay
+				containerClasses="w-full max-w-full max-h-full z-10"
+				containerStyles={{ aspectRatio: videoAspectRatio }}
+				topLeft={<OverlayText>Output</OverlayText>}
+			/>
 			<OutputCanvas
-				className="max-w-full max-h-full"
+				className="w-full max-w-full h-full max-h-full"
 				ref={outputCanvasRef}
 				width={videoWidth ?? 100}
 				height={videoHeight ?? 100}
+				aspectRatio={videoAspectRatio}
 			/>
 		</div>
 	);

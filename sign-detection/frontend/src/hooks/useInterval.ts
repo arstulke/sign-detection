@@ -8,5 +8,5 @@ export function useInterval(
 	useEffect(() => {
 		const intervalId = setInterval(fn, intervalMs);
 		return () => clearInterval(intervalId);
-	}, deps);
+	}, [intervalMs, deps ?? []]);
 }

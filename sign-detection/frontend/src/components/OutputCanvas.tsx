@@ -6,11 +6,15 @@ import {
 	useRef,
 } from "react";
 import { Frame } from "sign-detection-lib";
+import FpsCounter, { FpsCounterHandle } from "./FpsCounter";
+import Overlay from "./Overlay";
+import OverlayText from "./OverlayText";
 
 interface OutputCanvasProps {
 	className?: string;
 	width: number;
 	height: number;
+	aspectRatio: number | undefined;
 }
 
 export interface OutputCanvasHandle {
@@ -21,10 +25,11 @@ export interface OutputCanvasHandle {
 
 const OutputCanvas = forwardRef(
 	(
-		{ className, width, height }: OutputCanvasProps,
+		{ className, width, height, aspectRatio }: OutputCanvasProps,
 		ref: ForwardedRef<OutputCanvasHandle>,
 	) => {
 		const canvasRef = useRef<HTMLCanvasElement>(null);
+		const fpsCounterRef = useRef<FpsCounterHandle>(null);
 
 		const ctx = useMemo(() => {
 			return canvasRef.current?.getContext("2d") as
@@ -53,6 +58,10 @@ const OutputCanvas = forwardRef(
 							{ colorSpace: "srgb" },
 						);
 						ctx.putImageData(imageData, 0, 0);
+
+						if (fpsCounterRef.current) {
+							fpsCounterRef.current.addFrame();
+						}
 					},
 				};
 			},
@@ -60,12 +69,23 @@ const OutputCanvas = forwardRef(
 		);
 
 		return (
-			<canvas
-				ref={canvasRef}
-				className={className}
-				width={width}
-				height={height}
-			/>
+			<div className={`relative ${className}`}>
+				<Overlay
+					containerClasses="w-full max-w-full max-h-full"
+					containerStyles={{ aspectRatio }}
+					topRight={
+						<OverlayText>
+							FPS: <FpsCounter ref={fpsCounterRef} />
+						</OverlayText>
+					}
+				/>
+				<canvas
+					ref={canvasRef}
+					className="max-w-full max-h-full"
+					width={width}
+					height={height}
+				/>
+			</div>
 		);
 	},
 );

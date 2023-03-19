@@ -11,10 +11,7 @@ export function useSignDetector() {
 			// max=9 (on most devices)
 			// formula: time_to_process/interval = time_to_process * frame_rate / 1000
 			const threadCount = 3;
-			const signDetector = new SignDetector(
-				threadCount,
-				SignDetectorWorker,
-			);
+			const signDetector = new SignDetector(threadCount, SignDetectorWorker);
 			await signDetector.start();
 			return signDetector;
 		}
