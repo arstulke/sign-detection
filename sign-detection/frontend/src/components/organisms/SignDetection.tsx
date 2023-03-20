@@ -65,7 +65,7 @@ export default function SignDetection({
 					);
 				}
 			} catch (err) {
-				if ((err as any).canceledWaiting) return;
+				if ((err as { canceledWaiting?: boolean }).canceledWaiting) return;
 				console.warn(err);
 			}
 		},
