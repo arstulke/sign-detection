@@ -1,5 +1,6 @@
-import { runWorker } from "sign-detection-lib";
+import "./worker-shim";
+import { runWorker, loadWasmBinary } from "sign-detection-lib";
 
 runWorker(() => {
-	return WebAssembly.compileStreaming(fetch("main.wasm"));
+	return loadWasmBinary("main.wasm");
 });

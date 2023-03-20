@@ -21,8 +21,6 @@ export interface OutputCanvasHandle {
 	drawFrame(frame: Frame, start: Date): void;
 }
 
-// TODO display the fps
-
 const OutputCanvas = forwardRef(
 	(
 		{ className, width, height, aspectRatio }: OutputCanvasProps,

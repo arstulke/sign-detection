@@ -1,25 +1,26 @@
 #!/usr/bin/env -S deno run --allow-env --allow-read --allow-write --allow-net --allow-run
 
 import { build, emptyDir } from "https://deno.land/x/dnt/mod.ts";
-import asc from "npm:assemblyscript/asc";
-import { stderr, stdout } from "https://deno.land/std@0.113.0/node/process.ts";
 
 await emptyDir("./npm");
 await emptyDir("./src/ts/wasm-build");
 
 console.log("Compiling WASM...");
-await asc.main([
-  "src/asc/main.ts",
-  "--bindings",
-  "raw",
-  "--outFile",
-  "src/ts/wasm-build/main.wasm",
-  "--textFile",
-  "src/ts/wasm-build/main.wat",
-], {
-  stdout,
-  stderr,
-});
+await Deno.mkdir("./src/ts/wasm-build/", { recursive: true });
+await Deno.run({
+  cmd: [
+    "em++",
+    "--bind",
+    "src/cpp/main.cpp",
+    "-o",
+    "src/ts/wasm-build/main.js",
+    "-sWASM=1",
+    "-sALLOW_MEMORY_GROWTH",
+    "-sEXPORTED_FUNCTIONS=[_malloc]",
+    "-sENVIRONMENT=web",
+    "-sEXPORT_ES6=1",
+  ],
+}).status();
 console.log("Compiling WASM... done");
 console.log();
 
