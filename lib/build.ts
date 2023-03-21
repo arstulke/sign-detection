@@ -7,18 +7,34 @@ await emptyDir("./src/ts/wasm-build");
 
 console.log("Compiling WASM...");
 await Deno.mkdir("./src/ts/wasm-build/", { recursive: true });
+const emscriptenVersion = "3.1.34";
+console.log(Deno.cwd());
+const dockerPrefixCommand = [
+  "docker",
+  "run",
+  "--rm",
+  "-v",
+  `${Deno.cwd()}:/data`,
+  "-w",
+  "/data",
+  `emscripten/emsdk:${emscriptenVersion ?? "latest"}`,
+];
+const emscriptenCommand = [
+  "em++",
+  "--bind",
+  "src/cpp/main.cpp",
+  "-o",
+  "src/ts/wasm-build/main.js",
+  "-sWASM=1",
+  "-sALLOW_MEMORY_GROWTH",
+  "-sEXPORTED_FUNCTIONS=[_malloc]",
+  "-sENVIRONMENT=web",
+  "-sEXPORT_ES6=1",
+];
 await Deno.run({
   cmd: [
-    "em++",
-    "--bind",
-    "src/cpp/main.cpp",
-    "-o",
-    "src/ts/wasm-build/main.js",
-    "-sWASM=1",
-    "-sALLOW_MEMORY_GROWTH",
-    "-sEXPORTED_FUNCTIONS=[_malloc]",
-    "-sENVIRONMENT=web",
-    "-sEXPORT_ES6=1",
+    ...dockerPrefixCommand,
+    ...emscriptenCommand,
   ],
 }).status();
 console.log("Compiling WASM... done");

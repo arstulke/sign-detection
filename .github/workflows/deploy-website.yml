@@ -15,7 +15,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 19
-      - uses: mymindstorm/setup-emsdk@v11
 
       - name: Cache deno deps
         run: deno cache ./build.ts ./src/ts/deps.ts
