@@ -7,7 +7,7 @@ export interface FpsCounterHandle {
 	addFrame(): void;
 }
 
-const SECONDS_TO_CONSIDER = 10;
+const SECONDS_TO_CONSIDER = 2;
 const MAX_DISPLAYABLE_FPS = 200;
 const MAX_TIMESTAMPS = MAX_DISPLAYABLE_FPS * 10;
 

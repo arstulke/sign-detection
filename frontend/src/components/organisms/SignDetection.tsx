@@ -19,7 +19,7 @@ export default function SignDetection({
 	isLoggingEnabled,
 }: SignDetectionProps) {
 	if (!fps || fps <= 0) {
-		fps = 10;
+		fps = 1;
 	}
 	const intervalBetweenFrames = Math.round(1000 / fps);
 
