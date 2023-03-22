@@ -3,11 +3,26 @@
 
 using namespace emscripten;
 
-struct Bitmap4C_t
+class Bitmap4C_t
 {
+    public:
     uintptr_t ptr;
     int32_t width;
     int32_t height;
+      int32_t byteLength;
+      static const int32_t BYTES_PER_PIXEL = 4;
+
+      Bitmap4C_t() {}
+
+      Bitmap4C_t(int32_t width, int32_t height) {
+        int32_t byteLength = width * height * BYTES_PER_PIXEL;
+        uint8_t* outputArray = new uint8_t[byteLength];
+        
+        this->width = width;
+        this->height = height;
+        this->byteLength = byteLength;
+        this->ptr = reinterpret_cast<uintptr_t>(outputArray);
+      }
     // add method for calculating the byte length of the bitmap
 };
 
@@ -61,9 +76,11 @@ void freeMemory() {
 EMSCRIPTEN_BINDINGS(image) {
   class_<Bitmap4C_t>("Bitmap4C")
     .constructor<>()
+    .constructor<int32_t, int32_t>()
     .property("ptr", &Bitmap4C_t::ptr)
     .property("width", &Bitmap4C_t::width)
     .property("height", &Bitmap4C_t::height)
+    .property("byteLength", &Bitmap4C_t::byteLength)
     ;
 
   class_<Response_t>("Response")

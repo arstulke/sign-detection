@@ -33,10 +33,14 @@ export async function runWorker(wasmModuleLoader?: WasmBinaryLoader) {
   );
 }
 
-class Bitmap4C {
+declare class Bitmap4C {
   ptr: number;
   width: number;
   height: number;
+  readonly byteLength: number;
+
+  constructor();
+  constructor(width: number, height: number);
 }
 
 interface Response {
@@ -44,16 +48,14 @@ interface Response {
 }
 
 interface CustomWasmInstance {
-  _malloc: (byteLength: number) => number;
+  _malloc(byteLength: number): number;
   HEAPU8: Uint8Array;
 
   Bitmap4C: typeof Bitmap4C;
-  processFrame: ProcessFrameFn;
-  freeMemory: FreeMemoryFn;
+  processFrame(input: Bitmap4C): Response;
+  test(): void;
+  freeMemory(): void;
 }
-
-type ProcessFrameFn = (input: Bitmap4C) => Response;
-type FreeMemoryFn = () => void;
 
 class ImageProcessor {
   loaded: Promise<void>;
@@ -73,8 +75,8 @@ class ImageProcessor {
   }: ProcessFrameInput): ProcessFrameOutput {
     const preComputation = new Date().toISOString();
 
-    const inputImage = this.convertFrameToBitmap4C(inputFrame);
-    const response = this.wasmInstance.processFrame(inputImage);
+    const inputBitmap4C = this.convertFrameToBitmap4C(inputFrame);
+    const response = this.wasmInstance.processFrame(inputBitmap4C);
     const outputFrame: Frame = this.convertBitmap4CToFrame(response.output);
     this.wasmInstance.freeMemory();
 
@@ -88,14 +90,9 @@ class ImageProcessor {
   }
 
   private convertFrameToBitmap4C(frame: Frame): Bitmap4C {
-    const ptr = this.wasmInstance._malloc(frame.arr.length);
-    this.wasmInstance.HEAPU8.set(frame.arr, ptr);
-
-    const img = new this.wasmInstance.Bitmap4C();
-    img.ptr = ptr;
-    img.width = frame.width;
-    img.height = frame.height;
-    return img;
+    const bitmap4C = new this.wasmInstance.Bitmap4C(frame.width, frame.height);
+    this.wasmInstance.HEAPU8.set(frame.arr, bitmap4C.ptr);
+    return bitmap4C;
   }
 
   private convertBitmap4CToFrame({ ptr, width, height }: Bitmap4C): Frame {
