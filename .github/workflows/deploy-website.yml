@@ -1,7 +1,8 @@
 name: deploy-website
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - '*'
   workflow_dispatch:
 
 jobs:
@@ -17,16 +18,15 @@ jobs:
           node-version: 19
 
       - name: Cache deno deps
-        run: deno cache ./build.ts ./src/ts/deps.ts
+        run: deno cache ./package-as-npm.ts ./src/ts/deps.ts
         working-directory: lib/
       - name: Build library
-        run: ./build.ts
+        run: ./build.sh
         working-directory: lib/
 
       - name: Install frontend deps
         run: |
           npm install
-          npm ci
         working-directory: frontend/
       - name: Build frontend
         run: |
@@ -35,6 +35,7 @@ jobs:
         working-directory: frontend/
         
       - name: Deploy frontend to Github Pages
+        if: github.ref == 'refs/heads/main'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: frontend/dist
