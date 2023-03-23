@@ -4,14 +4,20 @@ export interface Frame {
   height: number;
 }
 
-export interface ProcessFrameInput {
+export interface ProcessFrameTaskInput {
   inputFrame: Frame;
   start: string;
 }
 
-export interface ProcessFrameOutput {
+export interface ProcessFrameTaskOutput {
   outputFrame: Frame;
   start: string;
   preComputation: string;
   postComputation: string;
+  memorySize: number;
+}
+
+export interface ProcessFrameResult extends ProcessFrameTaskOutput {
+  end: string;
+  memorySizeUnit: string;
 }

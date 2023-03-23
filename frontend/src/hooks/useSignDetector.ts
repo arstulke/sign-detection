@@ -7,7 +7,7 @@ export function useSignDetector() {
 	useEffect(() => {
 		async function createSignDetector() {
 			// min=1
-			// opt=5 (minimum computation time)
+			// opt=3 (works fine)
 			// max=9 (on most devices)
 			// formula: time_to_process/interval = time_to_process * frame_rate / 1000
 			const threadCount = 3;

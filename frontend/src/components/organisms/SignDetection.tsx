@@ -11,12 +11,14 @@ interface SignDetectionProps {
 	fps?: number;
 	showWebcam: "original" | "grabbed" | "none";
 	isLoggingEnabled?: boolean;
+	onMemorySize?: (memorySize: number, memorySizeUnit: string) => void;
 }
 
 export default function SignDetection({
 	fps,
 	showWebcam,
 	isLoggingEnabled,
+	onMemorySize,
 }: SignDetectionProps) {
 	if (!fps || fps <= 0) {
 		fps = 1;
@@ -46,9 +48,19 @@ export default function SignDetection({
 					grabbedCanvasRef.current.drawFrame(frame, new Date());
 				}
 
-				const { outputFrame, start, preComputation, postComputation, end } =
-					await signDetector.processFrame(frame);
+				const {
+					outputFrame,
+					start,
+					preComputation,
+					postComputation,
+					end,
+					memorySize,
+					memorySizeUnit,
+				} = await signDetector.processFrame(frame);
 				outputCanvasRef.current.drawFrame(outputFrame, new Date(start));
+				if (onMemorySize) {
+					onMemorySize(memorySize, memorySizeUnit);
+				}
 
 				if (isLoggingEnabled) {
 					const [threadPoolWait, computation, threadPoolOut] = [

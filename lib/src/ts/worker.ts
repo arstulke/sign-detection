@@ -1,7 +1,11 @@
 import instantiateWasm from "./wasm-build/main.js";
 
 import { exposeSingleFunction } from "./deps.ts";
-import { Frame, ProcessFrameInput, ProcessFrameOutput } from "./types.ts";
+import {
+  Frame,
+  ProcessFrameTaskInput,
+  ProcessFrameTaskOutput,
+} from "./types.ts";
 
 type WasmBinaryLoader = () => Promise<Uint8Array>;
 
@@ -27,8 +31,8 @@ export async function runWorker(wasmModuleLoader?: WasmBinaryLoader) {
   const imageProcessor = new ImageProcessor(wasmModuleLoader);
   await imageProcessor.loaded;
 
-  exposeSingleFunction<ProcessFrameInput, ProcessFrameOutput>(
-    (input: ProcessFrameInput) => imageProcessor.processFrameObject(input),
+  exposeSingleFunction<ProcessFrameTaskInput, ProcessFrameTaskOutput>(
+    (input: ProcessFrameTaskInput) => imageProcessor.processFrameObject(input),
     "processFrame",
   );
 }
@@ -39,7 +43,6 @@ declare class Bitmap4C {
   height: number;
   readonly byteLength: number;
 
-  constructor();
   constructor(width: number, height: number);
 }
 
@@ -48,7 +51,6 @@ interface Response {
 }
 
 interface CustomWasmInstance {
-  _malloc(byteLength: number): number;
   HEAPU8: Uint8Array;
 
   Bitmap4C: typeof Bitmap4C;
@@ -72,7 +74,7 @@ class ImageProcessor {
   async processFrameObject({
     inputFrame,
     start,
-  }: ProcessFrameInput): ProcessFrameOutput {
+  }: ProcessFrameTaskInput): ProcessFrameTaskOutput {
     const preComputation = new Date().toISOString();
 
     const inputBitmap4C = this.convertFrameToBitmap4C(inputFrame);
@@ -80,12 +82,15 @@ class ImageProcessor {
     const outputFrame: Frame = this.convertBitmap4CToFrame(response.output);
     this.wasmInstance.freeMemory();
 
+    const memorySize = this.wasmInstance.HEAPU8.byteLength;
+
     const postComputation = new Date().toISOString();
     return {
       outputFrame,
       start,
       preComputation,
       postComputation,
+      memorySize,
     };
   }
 

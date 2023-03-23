@@ -27,7 +27,7 @@ const emscriptenCommand = [
   "src/ts/wasm-build/main.js",
   "-sWASM=1",
   "-sALLOW_MEMORY_GROWTH",
-  "-sEXPORTED_FUNCTIONS=[_malloc]",
+  "-sEXPORTED_FUNCTIONS=[]",
   "-sENVIRONMENT=web",
   "-sEXPORT_ES6=1",
 ];
