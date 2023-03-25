@@ -3,12 +3,12 @@
 # compile c++ to wasm
 mkdir -p ./src/ts/wasm-build/
 rm -rf ./src/ts/wasm-build/*
-docker build -t wasm-builder -f wasm-builder.dockerfile .
+docker pull ghcr.io/arstulke/sign-detection/emscripten-opencv:semi-working-docker-builds
 docker run \
     --rm \
     -v $(pwd):/data \
     -w /data \
-    wasm-builder \
+    ghcr.io/arstulke/sign-detection/emscripten-opencv:semi-working-docker-builds \
         em++ \
         src/cpp/main.cpp \
         --bind \
