@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <emscripten/bind.h>
+#include <opencv2/opencv.hpp>
 
 using namespace emscripten;
+using namespace cv;
 
 class Bitmap4C_t
 {
@@ -53,6 +55,9 @@ Response_t processFrame(Bitmap4C_t input) {
 
     customGarbage[0] = input.ptr;
     customGarbage[1] = response.output.ptr;
+
+    Mat drawing = Mat::zeros( 3,3, CV_8UC3 );
+    drawing.release();
 
     return response;
 }

@@ -12,8 +12,11 @@ docker run \
         em++ \
         src/cpp/main.cpp \
         --bind \
+        -I /usr/local/include/opencv4 \
         -o src/ts/wasm-build/main.js \
         -sWASM=1 \
+        -s LLD_REPORT_UNDEFINED \
+        -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
         -sALLOW_MEMORY_GROWTH \
         -sEXPORTED_FUNCTIONS=[] \
         -sENVIRONMENT=web \

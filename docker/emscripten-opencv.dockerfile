@@ -1,5 +1,4 @@
-# TODO use newer emscripten version e.g. emscripten/emsdk:3.1.34
-FROM emscripten/emsdk:2.0.10
+FROM emscripten/emsdk:3.1.34
 
 # Install requirements
 RUN apt-get update && apt-get install -y \
@@ -18,3 +17,4 @@ RUN git clone -b 4.7.0 --depth 1 https://github.com/opencv/opencv.git /opencv &&
     rm -rf /opencv
 
 WORKDIR /data
+LABEL org.opencontainers.image.source https://github.com/arstulke/sign-detection
