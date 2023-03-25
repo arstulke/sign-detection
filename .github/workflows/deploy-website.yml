@@ -5,9 +5,72 @@ on:
       - '*'
   workflow_dispatch:
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: arstulke/sign-detection/emscripten-opencv
+
 jobs:
-  build-and-deploy:
+  paths-filter:
     runs-on: ubuntu-latest
+    outputs:
+      dockerfile-emscripten-opencv: ${{ steps.filter.outputs.dockerfile-emscripten-opencv }}
+    steps:
+    - uses: actions/checkout@v2
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          dockerfile-emscripten-opencv:
+            - 'docker/emscripten-opencv.dockerfile'
+    # run only if 'workflows' files were changed
+    - name: workflow tests
+      if: steps.filter.outputs.dockerfile-emscripten-opencv == 'true'
+      run: echo "Workflow file"
+
+    # run only if not 'workflows' files were changed
+    - name: not workflow tests
+      if: steps.filter.outputs.dockerfile-emscripten-opencv != 'true'
+      run: echo "NOT workflow file"
+
+  build-docker-image:
+    runs-on: ubuntu-latest
+    needs: paths-filter
+    if: ${{ (needs.paths-filter.outputs.dockerfile-emscripten-opencv == 'true') && ((github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/dev'))}}
+    # TODO build and push only on main and dev branch
+    # TODO build with latest tag or dev tag
+    steps:
+      - uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: ${{ github.ref_name }}
+          flavor: ${{ github.ref == 'refs/heads/main' && 'latest=true' || '' }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: docker
+          # file: docker/emscripten-opencv.dockerfile
+          file: docker/tmp.dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Printing images
+        run: docker image ls ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+  build-and-deploy-app:
+    runs-on: ubuntu-latest
+    needs: build-docker-image
     steps:
       - uses: actions/checkout@v3
       - uses: denoland/setup-deno@v1
@@ -16,6 +79,12 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 19
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache deno deps
         run: deno cache ./package-as-npm.ts ./src/ts/deps.ts
