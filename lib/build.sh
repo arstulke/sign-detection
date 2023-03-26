@@ -21,8 +21,9 @@ docker run \
         -I /opencv-em/packaging/build_wasm/ \
         -o src/ts/wasm-build/main.js \
         -sWASM=1 \
-        -s LLD_REPORT_UNDEFINED \
-        -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
+        -sLLD_REPORT_UNDEFINED \
+        -sERROR_ON_UNDEFINED_SYMBOLS=0 \
+        -sTOTAL_MEMORY=4MB \
         -sALLOW_MEMORY_GROWTH \
         -sEXPORTED_FUNCTIONS=[] \
         -sENVIRONMENT=web \

@@ -3,12 +3,11 @@
 #include <opencv2/imgproc.hpp>
 
 using namespace emscripten;
-using namespace cv;
 
 class Bitmap4C_t
 {
     private:
-      Mat* mat;
+      cv::Mat* mat;
       bool freeMat;
       bool freePtr;
     public:
@@ -27,8 +26,11 @@ class Bitmap4C_t
       Bitmap4C_t(int32_t width, int32_t height) {
         int32_t byteLength = width * height * BYTES_PER_PIXEL;
         uint8_t* outputArray = new uint8_t[byteLength];
+
+        cv::Mat* mat = new cv::Mat(height, width, CV_8UC4, outputArray);
         
-        this->freeMat = false;
+        this->mat = mat;
+        this->freeMat = true;
         this->freePtr = true;
         this->width = width;
         this->height = height;
@@ -36,7 +38,7 @@ class Bitmap4C_t
         this->ptr = reinterpret_cast<uintptr_t>(outputArray);
       }
 
-      Bitmap4C_t(Mat* mat) {
+      Bitmap4C_t(cv::Mat* mat) {
         this->mat = mat;
         this->freeMat = true;
         this->freePtr = false;
@@ -46,14 +48,8 @@ class Bitmap4C_t
         this->ptr = reinterpret_cast<uintptr_t>(mat->data);
       }
 
-      Mat createMat() {
-        uint8_t* arr = reinterpret_cast<uint8_t*>(this->ptr);
-        Mat* mat = new Mat(this->height, this->width, CV_8UC4, arr);
-
-        this->mat = mat;
-        this->freeMat = true;
-
-        return *mat;
+      cv::Mat getMat() {
+        return *this->mat;
       }
 
       void release() {
@@ -77,10 +73,10 @@ int customGarbageCount = 2;
 Bitmap4C_t* customGarbage = new Bitmap4C_t[customGarbageCount];
 
 Response_t processFrame(Bitmap4C_t inputBitmap) {
-    Mat input = inputBitmap.createMat();
-    Mat gray, output;
-    cvtColor(input, gray, COLOR_RGBA2GRAY);
-    cvtColor(gray, output, COLOR_GRAY2RGBA);
+    cv::Mat input = inputBitmap.getMat();
+    cv::Mat gray, output;
+    cv::cvtColor(input, gray, cv::COLOR_RGBA2GRAY);
+    cv::cvtColor(gray, output, cv::COLOR_GRAY2RGBA);
 
     Response_t response = { /*output=*/ Bitmap4C_t(&output) };
 
