@@ -2,6 +2,8 @@
 #include <emscripten/bind.h>
 #include <opencv2/imgproc.hpp>
 
+#include "operators/colorized_canny.hpp"
+
 using namespace emscripten;
 
 class Bitmap4C_t
@@ -75,7 +77,7 @@ Bitmap4C_t* customGarbage = new Bitmap4C_t[customGarbageCount];
 Response_t processFrame(Bitmap4C_t inputBitmap) {
     cv::Mat input = inputBitmap.getMat();
     cv::Mat gray, output;
-    cv::cvtColor(input, gray, cv::COLOR_RGBA2GRAY);
+    colorizedCanny(input, gray, 75, 150);
     cv::cvtColor(gray, output, cv::COLOR_GRAY2RGBA);
 
     Response_t response = { /*output=*/ Bitmap4C_t(&output) };

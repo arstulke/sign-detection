@@ -11,7 +11,7 @@ docker run \
     -w /data \
     ghcr.io/arstulke/sign-detection/emscripten-opencv:$docker_tag \
         em++ \
-        src/cpp/main.cpp \
+        $(find src/cpp -type f -name "*.cpp") \
         /opencv-em/packaging/build_wasm/lib/libopencv_core.a \
         /opencv-em/packaging/build_wasm/lib/libopencv_imgproc.a \
         --bind \
