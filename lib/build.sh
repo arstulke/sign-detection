@@ -5,7 +5,6 @@ docker_tag=${1:-latest}
 # compile c++ to wasm
 mkdir -p ./src/ts/wasm-build/
 rm -rf ./src/ts/wasm-build/*
-docker pull ghcr.io/arstulke/sign-detection/emscripten-opencv:$docker_tag
 docker run \
     --rm \
     -v $(pwd):/data \
