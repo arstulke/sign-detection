@@ -13,8 +13,13 @@ docker run \
     ghcr.io/arstulke/sign-detection/emscripten-opencv:$docker_tag \
         em++ \
         src/cpp/main.cpp \
+        /opencv-em/packaging/build_wasm/lib/libopencv_core.a \
+        /opencv-em/packaging/build_wasm/lib/libopencv_imgproc.a \
         --bind \
-        -I /usr/local/include/opencv4 \
+        -I /opencv-em/packaging/build_wasm/opencv/include \
+        -I /opencv-em/packaging/build_wasm/opencv/modules/core/include \
+        -I /opencv-em/packaging/build_wasm/opencv/modules/imgproc/include \
+        -I /opencv-em/packaging/build_wasm/ \
         -o src/ts/wasm-build/main.js \
         -sWASM=1 \
         -s LLD_REPORT_UNDEFINED \
