@@ -1,12 +1,12 @@
-#include <stdio.h>
 #include <opencv2/imgproc.hpp>
 
 #include "colorized_canny.hpp"
 
-void colorizedCanny(cv::Mat& src, cv::Mat& dst, double lowerThreshold, double upperThreshold) {
+void colorizedCanny(cv::Mat &src, cv::Mat &dst, double lowerThreshold, double upperThreshold)
+{
     cv::Mat channels[4];
     split(src, channels);
-    
+
     cv::Mat cannyChannels[3];
     cv::Canny(channels[0], cannyChannels[0], lowerThreshold, upperThreshold);
     cv::Canny(channels[1], cannyChannels[1], lowerThreshold, upperThreshold);

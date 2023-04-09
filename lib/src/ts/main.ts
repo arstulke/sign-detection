@@ -8,6 +8,8 @@ import { WorkerConstructor, WorkerPool } from "./deps.ts";
 
 export type ProcessedFrameListener = (processedFrame: Frame) => void;
 
+// TODO add implementation without threadpool (use only the main thread)
+
 export class SignDetector {
   private readonly pool: WorkerPool;
   private readonly memorySizeLastValues: number[];
