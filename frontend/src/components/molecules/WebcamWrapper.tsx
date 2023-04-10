@@ -1,6 +1,7 @@
 import {
 	ForwardedRef,
 	forwardRef,
+	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useRef,
@@ -29,21 +30,23 @@ const WebcamWrapper = forwardRef(
 		ref: ForwardedRef<WebcamWrapperHandle>,
 	) => {
 		const webcamRef = useRef<Webcam>(null);
-
-		const webcamVideo = webcamRef.current?.video;
 		const [videoWidth, setVideoWidth] = useState(0);
 		const [videoHeight, setVideoHeight] = useState(0);
-		if (webcamVideo) {
-			webcamVideo.onplay = () => {
-				const { videoWidth, videoHeight } = webcamVideo;
+
+		useEffect(() => {
+			const video = webcamRef.current?.video;
+			if (!video) return;
+
+			video.onplay = () => {
+				const { videoWidth, videoHeight } = video;
 				const videoAspectRatio = videoWidth / videoHeight;
 
-				setVideoWidth(webcamVideo.videoWidth);
-				setVideoHeight(webcamVideo.videoHeight);
+				setVideoWidth(video.videoWidth);
+				setVideoHeight(video.videoHeight);
 
 				onVideoDimensions({ videoWidth, videoHeight, videoAspectRatio });
 			};
-		}
+		}, [webcamRef.current]);
 
 		const canvasContext = useMemo(() => {
 			const video = webcamRef.current?.video;
