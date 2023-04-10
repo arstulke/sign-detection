@@ -8,12 +8,14 @@ import {
 
 export type WasmBinaryLoader = () => Promise<Uint8Array>;
 
-// TODO refactor to class so that it can be used without thread pool
-
 export async function loadWasmBinary(
   urlOrString: URL | string,
 ): ReturnType<WasmBinaryLoader> {
   const response = await fetch(urlOrString);
+  if (!response.ok) {
+    throw new Error(`Could not fetch WASM file from "${urlOrString}"`);
+  }
+
   const arrayBuffer = await response.arrayBuffer();
   return new Uint8Array(arrayBuffer);
 }

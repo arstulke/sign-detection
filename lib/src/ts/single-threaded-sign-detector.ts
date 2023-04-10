@@ -6,7 +6,6 @@ import {
 import { InternalSignDetector, WasmBinaryLoader } from "./internal-sign-detector.ts";
 import { formatWithStorageUnit } from "./multi-threaded-sign-detector.ts";
 
-// TODO add implementation without threadpool (use only the main thread)
 // TODO rename: maybe "MainThreadedSignDetector"
 
 export class SingleThreadedSignDetector implements ISignDetector {

@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useInterval } from "../../hooks/useInterval";
-import { useSignDetector } from "../../hooks/useSignDetector";
+import { useSignDetector } from "../../hooks/sign-detector/useSignDetector";
 import AspectRatioContainer from "../atoms/AspectRatioContainer";
 import OutputCanvas, { OutputCanvasHandle } from "../molecules/OutputCanvas";
 import Overlay from "../atoms/Overlay";
@@ -25,7 +25,7 @@ export default function SignDetection({
 	}
 	const intervalBetweenFrames = Math.round(1000 / fps);
 
-	const signDetector = useSignDetector();
+	const signDetector = useSignDetector(true);
 	const webcamRef = useRef<WebcamWrapperHandle>(null);
 	const grabbedCanvasRef = useRef<OutputCanvasHandle>(null);
 	const outputCanvasRef = useRef<OutputCanvasHandle>(null);

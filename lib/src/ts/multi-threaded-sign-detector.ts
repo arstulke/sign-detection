@@ -7,8 +7,6 @@ import {
 } from "./types.ts";
 import { WorkerConstructor, WorkerPool } from "./deps.ts";
 
-// TODO add implementation without threadpool (use only the main thread)
-
 export class MultiThreadedSignDetector implements ISignDetector {
   private readonly pool: WorkerPool;
   private readonly memorySizeLastValues: number[];

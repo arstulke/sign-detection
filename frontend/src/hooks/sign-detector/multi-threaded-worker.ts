@@ -1,5 +1,6 @@
 import "./worker-shim";
-import { runWorker, loadWasmBinary } from "sign-detection-lib";
+
+import { loadWasmBinary, runWorker } from "sign-detection-lib";
 
 runWorker(() => {
 	return loadWasmBinary("main.wasm");
