@@ -9,6 +9,8 @@ import {
 
 type WasmBinaryLoader = () => Promise<Uint8Array>;
 
+// TODO refactor to class so that it can be used without thread pool
+
 export async function loadWasmBinary(
   urlOrString: URL | string,
 ): ReturnType<WasmBinaryLoader> {
@@ -46,15 +48,27 @@ declare class Bitmap4C {
   constructor(width: number, height: number);
 }
 
-interface Response {
+declare class Request {
+  input: Bitmap4C;
+  release(): void;
+
+  constructor(width: number, height: number);
+}
+
+declare class Response {
   output: Bitmap4C;
+
+  private constructor();
+  release(): void;
 }
 
 interface CustomWasmInstance {
   HEAPU8: Uint8Array;
 
   Bitmap4C: typeof Bitmap4C;
-  processFrame(input: Bitmap4C): Response;
+  Request: typeof Request;
+  Response: typeof Response;
+  processFrame(input: Request): Response;
   test(): void;
   freeMemory(): void;
 }
@@ -74,16 +88,17 @@ class ImageProcessor {
   async processFrameObject({
     inputFrame,
     start,
-  }: ProcessFrameTaskInput): ProcessFrameTaskOutput {
+  }: ProcessFrameTaskInput): Promise<ProcessFrameTaskOutput> {
     const preComputation = new Date().toISOString();
 
-    const inputBitmap4C = this.convertFrameToBitmap4C(inputFrame);
-    const response = this.wasmInstance.processFrame(inputBitmap4C);
-    const outputFrame: Frame = this.convertBitmap4CToFrame(response.output);
-    this.wasmInstance.freeMemory();
+    const request: Request = this.convertFrameToRequest(inputFrame);
+    const response: Response = this.wasmInstance.processFrame(request);
+    const outputFrame: Frame = this.convertResponseToFrame(response);
+    
+    request.release();
+    response.release();
 
     const memorySize = this.wasmInstance.HEAPU8.byteLength;
-
     const postComputation = new Date().toISOString();
     return {
       outputFrame,
@@ -94,14 +109,17 @@ class ImageProcessor {
     };
   }
 
-  private convertFrameToBitmap4C(frame: Frame): Bitmap4C {
-    const bitmap4C = new this.wasmInstance.Bitmap4C(frame.width, frame.height);
-    this.wasmInstance.HEAPU8.set(frame.arr, bitmap4C.ptr);
-    return bitmap4C;
+  private convertFrameToRequest({ width, height, arr }: Frame): Request {
+    const request = new this.wasmInstance.Request(width, height);
+    this.wasmInstance.HEAPU8.set(arr, request.input.ptr);
+    return request;
   }
 
-  private convertBitmap4CToFrame({ ptr, width, height }: Bitmap4C): Frame {
-    const byteLength = width * height * 4;
+  private convertResponseToFrame(response: Response): Frame {
+    return this.convertBitmap4CToFrame(response.output);
+  }
+
+  private convertBitmap4CToFrame({ ptr, width, height, byteLength }: Bitmap4C): Frame {
     const arr = new Uint8ClampedArray(
       this.wasmInstance.HEAPU8.buffer.slice(ptr, ptr + byteLength),
     );

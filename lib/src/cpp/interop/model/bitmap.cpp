@@ -2,13 +2,13 @@
 
 #include "bitmap.hpp"
 
-Bitmap4C_t::Bitmap4C_t()
+Bitmap4C::Bitmap4C()
 {
   this->freeMat = false;
   this->freePtr = false;
 }
 
-Bitmap4C_t::Bitmap4C_t(int32_t width, int32_t height)
+Bitmap4C::Bitmap4C(int32_t width, int32_t height)
 {
   int32_t byteLength = width * height * BYTES_PER_PIXEL;
   uint8_t *outputArray = new uint8_t[byteLength];
@@ -24,7 +24,7 @@ Bitmap4C_t::Bitmap4C_t(int32_t width, int32_t height)
   this->ptr = reinterpret_cast<uintptr_t>(outputArray);
 }
 
-Bitmap4C_t::Bitmap4C_t(cv::Mat *mat)
+Bitmap4C::Bitmap4C(cv::Mat *mat)
 {
   this->mat = mat;
   this->freeMat = true;
@@ -35,12 +35,12 @@ Bitmap4C_t::Bitmap4C_t(cv::Mat *mat)
   this->ptr = reinterpret_cast<uintptr_t>(mat->data);
 }
 
-cv::Mat Bitmap4C_t::getMat()
+cv::Mat Bitmap4C::getMat()
 {
   return *this->mat;
 }
 
-void Bitmap4C_t::release()
+void Bitmap4C::release()
 {
   if (this->freeMat)
   {

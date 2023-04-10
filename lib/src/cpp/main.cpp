@@ -3,53 +3,38 @@
 #include <opencv2/imgproc.hpp>
 
 #include "detect_signs.hpp"
-#include "interop/bitmap.hpp"
+#include "interop/model/bitmap.hpp"
+#include "interop/model/request.hpp"
+#include "interop/model/response.hpp"
 
 using namespace emscripten;
 
-struct Response_t
+Response processFrame(Request request)
 {
-  Bitmap4C_t output;
-};
-
-int customGarbageCount = 2;
-Bitmap4C_t *customGarbage = new Bitmap4C_t[customGarbageCount];
-
-Response_t processFrame(Bitmap4C_t inputBitmap)
-{
-  cv::Mat input = inputBitmap.getMat();
+  cv::Mat input = request.input.getMat();
   cv::Mat output;
+  
   detectSigns(input, output);
 
-  Response_t response = {/*output=*/Bitmap4C_t(&output)};
-
-  customGarbage[0] = inputBitmap;
-  customGarbage[1] = response.output;
-
-  return response;
-}
-
-void freeMemory()
-{
-  for (int i = 0; i < customGarbageCount; i++)
-  {
-    Bitmap4C_t bitmap = customGarbage[i];
-    bitmap.release();
-  }
+  return Response(Bitmap4C(&output));
 }
 
 EMSCRIPTEN_BINDINGS(image)
 {
-  class_<Bitmap4C_t>("Bitmap4C")
-      .constructor<int32_t, int32_t>()
-      .property("ptr", &Bitmap4C_t::ptr)
-      .property("width", &Bitmap4C_t::width)
-      .property("height", &Bitmap4C_t::height)
-      .property("byteLength", &Bitmap4C_t::byteLength);
+  class_<Bitmap4C>("Bitmap4C")
+      .property("ptr", &Bitmap4C::ptr)
+      .property("width", &Bitmap4C::width)
+      .property("height", &Bitmap4C::height)
+      .property("byteLength", &Bitmap4C::byteLength);
 
-  class_<Response_t>("Response")
-      .property("output", &Response_t::output);
+  class_<Request>("Request")
+      .constructor<int32_t, int32_t>()
+      .property("input", &Request::input)
+      .function("release", &Request::release);
+
+  class_<Response>("Response")
+      .property("output", &Response::output)
+      .function("release", &Response::release);
 
   function("processFrame", &processFrame);
-  function("freeMemory", &freeMemory);
 }
