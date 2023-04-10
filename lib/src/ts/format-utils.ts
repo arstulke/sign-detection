@@ -6,7 +6,7 @@ export function formatWithStorageUnit(
 ): { value: number; unit: StorageUnit } {
   return StorageUnitValues
     .map((unit: StorageUnit, idx: number) => ({
-      value: Math.round(value / Math.pow(1024, idx + 1)),
+      value: Math.round(value / Math.pow(1024, idx)),
       unit,
     }))
     .find(({ value }, idx, arr) => {

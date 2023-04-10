@@ -26,14 +26,14 @@ export class MainThreadedSignDetector implements ISignDetector {
       start,
       preComputation,
       postComputation,
-      memorySize: memorySizeBytes,
+      memorySize: memorySizeInBytes,
     } = await this.internalSignDetector.processFrame({
       inputFrame: frame,
       start: new Date().toISOString(),
     });
 
     const { value: memorySize, unit: memorySizeUnit } = formatWithStorageUnit(
-      memorySizeBytes,
+      memorySizeInBytes,
     );
 
     return {

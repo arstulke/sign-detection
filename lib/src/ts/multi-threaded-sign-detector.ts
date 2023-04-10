@@ -10,7 +10,10 @@ import { formatWithStorageUnit } from "./format-utils.ts";
 
 export class MultiThreadedSignDetector implements ISignDetector {
   private readonly pool: WorkerPool;
-  private readonly memorySizeLastValues: number[];
+  private readonly memorySizeMap: Map<string, number> = new Map<
+    string,
+    number
+  >();
 
   constructor(
     private readonly threadCount: number = 1,
@@ -20,12 +23,12 @@ export class MultiThreadedSignDetector implements ISignDetector {
       maxWaitingValues: 1,
       deleteWaitingValueAction: "first",
     });
-    this.memorySizeLastValues = new Array<number>(threadCount).fill(0);
   }
 
   async start() {
     await this.pool.started();
     await this.pool.scaleTo(this.threadCount);
+    this.memorySizeMap.clear();
   }
 
   async processFrame(
@@ -36,7 +39,7 @@ export class MultiThreadedSignDetector implements ISignDetector {
       start,
       preComputation,
       postComputation,
-      memorySize: memorySizeBytes,
+      memorySize: singleMemorySize,
     } = await this
       .pool.run<
       ProcessFrameTaskInput,
@@ -46,8 +49,14 @@ export class MultiThreadedSignDetector implements ISignDetector {
       start: new Date().toISOString(),
     });
 
-    const { value: memorySize, unit: memorySizeUnit } = this
-      .addMemorySizeAndCalculateAvg(memorySizeBytes);
+    this.memorySizeMap.set("ID0", singleMemorySize); // TODO use ID of the thread (handle stopped/replaced threads?)
+    const memorySizeSum = [...this.memorySizeMap.values()].reduce(
+      (a, b) => a + b,
+      0,
+    );
+    const { value: memorySize, unit: memorySizeUnit } = formatWithStorageUnit(
+      memorySizeSum,
+    );
 
     return {
       outputFrame,
@@ -58,18 +67,6 @@ export class MultiThreadedSignDetector implements ISignDetector {
       memorySize,
       memorySizeUnit,
     };
-  }
-
-  private addMemorySizeAndCalculateAvg(
-    memorySizeBytes: number,
-  ): { value: number; unit: string } {
-    // TODO thread-pool: add IDs/index to WorkerThreads for identifying the total memory usage
-    this.memorySizeLastValues.shift();
-    this.memorySizeLastValues.push(memorySizeBytes);
-
-    const avg = this.memorySizeLastValues.reduce((a, b) => a + b, 0) /
-      this.memorySizeLastValues.length;
-    return formatWithStorageUnit(avg);
   }
 
   async stop() {
