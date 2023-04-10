@@ -3,11 +3,15 @@ import { ISignDetector } from "sign-detection-lib";
 import { createMultiThreadedSignDetector } from "./multi-threaded";
 import { createMainThreadedSignDetector } from "./main-threaded";
 
-export function useSignDetector(useMultithreading?: boolean): Pick<ISignDetector, "processFrame"> | undefined {
+export function useSignDetector(
+	useMultithreading?: boolean,
+): Pick<ISignDetector, "processFrame"> | undefined {
 	const [signDetector, setSignDetector] = useState<ISignDetector>();
 	useEffect(() => {
 		async function createSignDetector() {
-			const signDetector = useMultithreading ? createMultiThreadedSignDetector() : createMainThreadedSignDetector();
+			const signDetector = useMultithreading
+				? createMultiThreadedSignDetector()
+				: createMainThreadedSignDetector();
 			await signDetector.start();
 			return signDetector;
 		}
