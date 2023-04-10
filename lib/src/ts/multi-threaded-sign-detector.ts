@@ -6,6 +6,7 @@ import {
   ProcessFrameTaskOutput,
 } from "./types.ts";
 import { WorkerConstructor, WorkerPool } from "./deps.ts";
+import { formatWithStorageUnit } from "./format-utils.ts";
 
 export class MultiThreadedSignDetector implements ISignDetector {
   private readonly pool: WorkerPool;
@@ -45,9 +46,8 @@ export class MultiThreadedSignDetector implements ISignDetector {
       start: new Date().toISOString(),
     });
 
-    const { value: memorySize, unit: memorySizeUnit } = this.addMemorySizeAndCalculateAvg(
-      memorySizeBytes,
-    );
+    const { value: memorySize, unit: memorySizeUnit } = this
+      .addMemorySizeAndCalculateAvg(memorySizeBytes);
 
     return {
       outputFrame,
@@ -81,20 +81,4 @@ class DefaultSignDetectorWorker extends Worker {
   constructor() {
     super(new URL("./builtin-worker.ts", import.meta.url), { type: "module" });
   }
-}
-
-export function formatWithStorageUnit(value: number): { value: number, unit: string } {
-  // TODO move to other file
-  // TODO improve implementation
-  const [scaled, memorySizeUnit] = [[0, ""], [10, "KiB"], [20, "MiB"], [
-    30,
-    "GiB",
-  ]]
-    .map(([exponent, unit]: [number, string]) => {
-      return [value / Math.pow(2, exponent), unit] as [number, string];
-    })
-    .find(([s], idx, arr) => s < 1024 || (idx === arr.length - 1));
-  const rounded = Math.round(scaled);
-
-  return { value: rounded,unit: memorySizeUnit };
 }

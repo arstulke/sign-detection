@@ -1,15 +1,11 @@
+import { Frame, ISignDetector, ProcessFrameResult } from "./types.ts";
 import {
-  Frame,
-  ISignDetector,
-  ProcessFrameResult,
-} from "./types.ts";
-import { InternalSignDetector, WasmBinaryLoader } from "./internal-sign-detector.ts";
-import { formatWithStorageUnit } from "./multi-threaded-sign-detector.ts";
+  InternalSignDetector,
+  WasmBinaryLoader,
+} from "./internal-sign-detector.ts";
+import { formatWithStorageUnit } from "./format-utils.ts";
 
-// TODO rename: maybe "MainThreadedSignDetector"
-
-export class SingleThreadedSignDetector implements ISignDetector {
-
+export class MainThreadedSignDetector implements ISignDetector {
   private readonly internalSignDetector: InternalSignDetector;
 
   constructor(
