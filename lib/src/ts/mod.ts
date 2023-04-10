@@ -1,6 +1,7 @@
-export type { Frame } from "./types.ts";
+export type { Frame, ISignDetector } from "./types.ts";
 
-export type { ProcessedFrameListener } from "./main.ts";
-export { SignDetector } from "./main.ts";
+export { MultiThreadedSignDetector } from "./multi-threaded-sign-detector.ts";
+export { SingleThreadedSignDetector } from "./single-threaded-sign-detector.ts";
 
-export { loadWasmBinary, runWorker } from "./worker.ts";
+export { loadWasmBinary } from "./internal-sign-detector.ts";
+export { runWorker } from "./worker.ts";

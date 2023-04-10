@@ -1,22 +1,21 @@
 import {
   Frame,
+  ISignDetector,
   ProcessFrameResult,
   ProcessFrameTaskInput,
   ProcessFrameTaskOutput,
 } from "./types.ts";
 import { WorkerConstructor, WorkerPool } from "./deps.ts";
 
-export type ProcessedFrameListener = (processedFrame: Frame) => void;
-
 // TODO add implementation without threadpool (use only the main thread)
 
-export class SignDetector {
+export class MultiThreadedSignDetector implements ISignDetector {
   private readonly pool: WorkerPool;
   private readonly memorySizeLastValues: number[];
 
   constructor(
     private readonly threadCount: number = 1,
-    signDetectorWorker: WorkerConstructor = SignDetectorWorker,
+    signDetectorWorker: WorkerConstructor = DefaultSignDetectorWorker,
   ) {
     this.pool = new WorkerPool(signDetectorWorker, {
       maxWaitingValues: 1,
@@ -48,7 +47,7 @@ export class SignDetector {
       start: new Date().toISOString(),
     });
 
-    const { memorySize, memorySizeUnit } = this.addMemorySizeAndCalculateAvg(
+    const { value: memorySize, unit: memorySizeUnit } = this.addMemorySizeAndCalculateAvg(
       memorySizeBytes,
     );
 
@@ -65,24 +64,14 @@ export class SignDetector {
 
   private addMemorySizeAndCalculateAvg(
     memorySizeBytes: number,
-  ): { memorySize: number; memorySizeUnit: string } {
+  ): { value: number; unit: string } {
     // TODO thread-pool: add IDs/index to WorkerThreads for identifying the total memory usage
     this.memorySizeLastValues.shift();
     this.memorySizeLastValues.push(memorySizeBytes);
 
     const avg = this.memorySizeLastValues.reduce((a, b) => a + b, 0) /
       this.memorySizeLastValues.length;
-    const [scaled, memorySizeUnit] = [[0, ""], [10, "KiB"], [20, "MiB"], [
-      30,
-      "GiB",
-    ]]
-      .map(([exponent, unit]: [number, string]) => {
-        return [avg / Math.pow(2, exponent), unit] as [number, string];
-      })
-      .find(([s], idx, arr) => s < 1024 || (idx === arr.length - 1));
-    const rounded = Math.round(scaled);
-
-    return { memorySize: rounded, memorySizeUnit };
+    return formatWithStorageUnit(avg);
   }
 
   async stop() {
@@ -90,8 +79,24 @@ export class SignDetector {
   }
 }
 
-class SignDetectorWorker extends Worker {
+class DefaultSignDetectorWorker extends Worker {
   constructor() {
     super(new URL("./builtin-worker.ts", import.meta.url), { type: "module" });
   }
+}
+
+export function formatWithStorageUnit(value: number): { value: number, unit: string } {
+  // TODO move to other file
+  // TODO improve implementation
+  const [scaled, memorySizeUnit] = [[0, ""], [10, "KiB"], [20, "MiB"], [
+    30,
+    "GiB",
+  ]]
+    .map(([exponent, unit]: [number, string]) => {
+      return [value / Math.pow(2, exponent), unit] as [number, string];
+    })
+    .find(([s], idx, arr) => s < 1024 || (idx === arr.length - 1));
+  const rounded = Math.round(scaled);
+
+  return { value: rounded,unit: memorySizeUnit };
 }

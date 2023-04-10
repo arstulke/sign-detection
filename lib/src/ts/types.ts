@@ -21,3 +21,9 @@ export interface ProcessFrameResult extends ProcessFrameTaskOutput {
   end: string;
   memorySizeUnit: string;
 }
+
+export interface ISignDetector {
+  start(): Promise<void>;
+  processFrame(frame: Frame): Promise<ProcessFrameResult>;
+  stop(): Promise<void>;
+}

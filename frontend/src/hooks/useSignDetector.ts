@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { SignDetector, ProcessedFrameListener } from "sign-detection-lib";
+import { MultiThreadedSignDetector, ISignDetector } from "sign-detection-lib";
 import SignDetectorWorker from "../worker?worker";
 
-export function useSignDetector() {
-	const [signDetector, setSignDetector] = useState<SignDetector>();
+export function useSignDetector(): Pick<ISignDetector, "processFrame"> | undefined {
+	const [signDetector, setSignDetector] = useState<ISignDetector>();
 	useEffect(() => {
 		async function createSignDetector() {
 			// min=1
@@ -11,7 +11,7 @@ export function useSignDetector() {
 			// max=9 (on most devices)
 			// formula: time_to_process/interval = time_to_process * frame_rate / 1000
 			const threadCount = 3;
-			const signDetector = new SignDetector(threadCount, SignDetectorWorker);
+			const signDetector = new MultiThreadedSignDetector(threadCount, SignDetectorWorker);
 			await signDetector.start();
 			return signDetector;
 		}

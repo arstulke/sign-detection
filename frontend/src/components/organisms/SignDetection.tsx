@@ -63,7 +63,7 @@ export default function SignDetection({
 				}
 
 				if (isLoggingEnabled) {
-					const [threadPoolWait, computation, threadPoolOut] = [
+					const [queueWait, computation, queueToDraw] = [
 						start,
 						preComputation,
 						postComputation,
@@ -73,7 +73,7 @@ export default function SignDetection({
 						.map((date, i, dates) => date - dates.at(i - 1)!)
 						.slice(1);
 					console.log(
-						`processed frame, threadPoolWait=${threadPoolWait}ms, computation=${computation}ms, threadPoolOut=${threadPoolOut}ms`,
+						`processed frame, queueWait=${queueWait}ms, computation=${computation}ms, queueToDraw=${queueToDraw}ms`,
 					);
 				}
 			} catch (err) {
