@@ -2,7 +2,7 @@
 #include <emscripten/bind.h>
 #include <opencv2/imgproc.hpp>
 
-#include "detect_signs.hpp"
+#include "locate_signs.hpp"
 #include "interop/model/bitmap.hpp"
 #include "interop/model/request.hpp"
 #include "interop/model/response.hpp"
@@ -14,7 +14,7 @@ Response processFrame(Request request)
   cv::Mat input = request.input.getMat();
   cv::Mat output;
   
-  detectSigns(input, output);
+  locateSigns(input, output);
 
   return Response(Bitmap4C(&output));
 }
