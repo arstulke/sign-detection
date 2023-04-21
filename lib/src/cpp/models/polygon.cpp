@@ -1,6 +1,6 @@
 #include "polygon.hpp"
 
-Polygon::Polygon(std::vector<cv::Point> contour) {
+Polygon::Polygon(std::vector<cv::Point2i> contour) {
     this->contour = contour;
     this->is_area_defined = false;
     this->is_perimeter_defined = false;

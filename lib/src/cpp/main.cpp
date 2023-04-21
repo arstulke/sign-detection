@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <emscripten/bind.h>
 #include <opencv2/imgproc.hpp>
 

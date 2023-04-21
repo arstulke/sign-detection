@@ -21,15 +21,15 @@ void locateSigns(cv::Mat &src, cv::Mat &dst)
 
     // calculate area threshold for potential sign
     double image_area = src.cols * src.rows;
-    double sign_area_threshold = image_area / 10000.0;
+    double sign_area_threshold = image_area / 1000.0;
 
     // find contours in colorized canny output
-    std::vector<std::vector<cv::Point>> contours;
+    std::vector<std::vector<cv::Point2i>> contours;
     std::vector<cv::Vec4i> hierarchy;
     cv::findContours(canny_output, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_NONE);
 
     for (size_t i = 0; i < contours.size(); i++)
     {
-        processPotentialSign(src, dst, contours, (int) i, sign_area_threshold);
+        processPotentialSign(src, dst, contours.at(i), sign_area_threshold);
     }
 }

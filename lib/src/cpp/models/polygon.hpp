@@ -5,12 +5,12 @@
 
 class Polygon {
     public:
-        Polygon(std::vector<cv::Point> contour);
+        Polygon(std::vector<cv::Point2i> contour);
         double getArea();
         double getPerimeter();
         double getCompactness();
     private:
-        std::vector<cv::Point> contour;
+        std::vector<cv::Point2i> contour;
 
         double area;
         bool is_area_defined;
