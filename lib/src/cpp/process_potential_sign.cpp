@@ -27,6 +27,9 @@ void processPotentialSign(cv::Mat &src, cv::Mat &dst, std::vector<std::vector<cv
     cv::Mat cropped;
     if (vertices_count == 4) {
         cropQuadraliteralSign(src, cropped, approximated_contour);
+
+        // copy cropped to top center
+        cropped.copyTo(dst(cv::Rect((dst.cols - cropped.cols) / 2, 0, cropped.cols, cropped.rows)));
     } else {
         return;
     }
