@@ -4,29 +4,35 @@ import {
   Frame,
   ISignDetector,
   MainThreadedSignDetector,
+  MultiThreadedSignDetector,
 } from "./src/ts/mod.ts";
 import { join } from "https://deno.land/std/path/mod.ts";
 import { decode, DecodeResult, encode } from "https://deno.land/x/pngs/mod.ts";
 
-const inputDir = "img/in";
-const outputDir = "img/out";
-
 const fileArgument = Deno.args[0];
 
-const signDetector: ISignDetector = new MainThreadedSignDetector();
+const inputDir = "img/in";
+const outputDir = "img/out";
+const workerThreads = 10;
+const isMultiThreaded = workerThreads >= 1 && !fileArgument;
+
+const signDetector: ISignDetector = isMultiThreaded
+  ? new MultiThreadedSignDetector()
+  : new MainThreadedSignDetector();
 await signDetector.start();
-processInputDir();
+await processInputDir();
 await signDetector.stop();
 
 // functions
 
 async function processInputDir(): Promise<void> {
+  if (isMultiThreaded) {
+    console.log();
+  }
   console.log(`⚙ processing input directory "${inputDir}"`);
-  const promises: Promise<void>[] = [
-    Promise.resolve(),
-    Promise.resolve(),
-    Promise.resolve(),
-  ];
+  const promises: Promise<void>[] = Array(Math.max(1, workerThreads))
+    .map(() => Promise.resolve());
+
   for await (const dirEntry of Deno.readDir(inputDir)) {
     await promises.shift(); // remove first promise and await it
     const promise = processDirEntry(dirEntry); // create promise

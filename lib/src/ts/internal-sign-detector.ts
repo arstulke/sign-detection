@@ -1,3 +1,4 @@
+import "./worker-shim.ts";
 import instantiateWasm from "./wasm-build/main.js";
 
 import {

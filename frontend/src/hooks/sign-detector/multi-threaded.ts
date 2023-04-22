@@ -1,4 +1,4 @@
-import { MultiThreadedSignDetector, ISignDetector } from "sign-detection-lib";
+import { ISignDetector, MultiThreadedSignDetector } from "sign-detection-lib";
 import SignDetectorWorker from "./multi-threaded-worker?worker";
 
 export function createMultiThreadedSignDetector(): ISignDetector {
