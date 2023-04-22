@@ -1,37 +1,101 @@
-#!/usr/bin/env -S deno run --allow-read
+#!/usr/bin/env -S deno run --allow-read --allow-write
 
-import { Frame, SignDetector } from "./src/ts/mod.ts";
+import {
+  Frame,
+  ISignDetector,
+  MainThreadedSignDetector,
+} from "./src/ts/mod.ts";
+import { join } from "https://deno.land/std/path/mod.ts";
+import { decode, DecodeResult, encode } from "https://deno.land/x/pngs/mod.ts";
 
-function logFrame(name: string, frame: Frame): void {
-  // maybe write image to file
-  console.log("frame=" + name, frame);
-}
+const inputDir = "img/in";
+const outputDir = "img/out";
 
-function createInputFrame() {
-  const bytesPerPixel = 4;
-  const width = 3;
-  const height = 3;
-  const data = new Uint8ClampedArray(width * height * bytesPerPixel);
-  for (let i = 0; i < data.byteLength; i += bytesPerPixel) {
-    const avg = (i + 1) * 5;
-    data[i + 0] = avg - 2;
-    data[i + 1] = avg;
-    data[i + 2] = avg + 2;
-  }
-  const input = {
-    arr: data,
-    width,
-    height,
-  };
-  return input;
-}
+const fileArgument = Deno.args[0];
 
-const signDetector = new SignDetector();
+const signDetector: ISignDetector = new MainThreadedSignDetector();
 await signDetector.start();
-
-const input = createInputFrame();
-logFrame("input", input);
-const output = await signDetector.processFrame(input);
-logFrame("output", output);
-
+processInputDir();
 await signDetector.stop();
+
+// functions
+
+async function processInputDir(): Promise<void> {
+  console.log(`⚙ processing input directory "${inputDir}"`);
+  const promises: Promise<void>[] = [
+    Promise.resolve(),
+    Promise.resolve(),
+    Promise.resolve(),
+  ];
+  for await (const dirEntry of Deno.readDir(inputDir)) {
+    await promises.shift(); // remove first promise and await it
+    const promise = processDirEntry(dirEntry); // create promise
+    promises.push(promise); // queue new promise
+  }
+
+  await Promise.all(promises);
+  console.log(`✓ processed input directory "${inputDir}"`);
+}
+
+async function processDirEntry(dirEntry: Deno.DirEntry): Promise<void> {
+  const { name: filename } = dirEntry;
+  const inputPath = join(inputDir, filename);
+  const outputPath = join(outputDir, filename);
+
+  if (fileArgument && fileArgument !== filename) {
+    return;
+  }
+
+  try {
+    console.log(`  ⚙ loading           "${inputPath}"`);
+    const inputFile = await Deno.readFile(inputPath);
+    const inputImage = decode(inputFile);
+    const inputFrame: Frame = convertToFrame(inputImage);
+
+    console.log(`  ⚙ processing        "${inputPath}"`);
+    const { outputFrame } = await signDetector.processFrame(inputFrame);
+
+    console.log(`  ⚙ writing           "${inputPath}" as "${outputPath}"`);
+    const outputFile = encode(
+      outputFrame.arr,
+      outputFrame.width,
+      outputFrame.height,
+    );
+    await Deno.writeFile(outputPath, outputFile);
+    console.log(`  ✓ exported          "${inputPath}" as "${outputPath}"`);
+  } catch (err) {
+    console.log(`  x failed to process "${inputPath}"`);
+  }
+}
+
+function convertToFrame(inputImage: DecodeResult): Frame {
+  if (inputImage.colorType === 2) {
+    return {
+      arr: rgbToRgba(inputImage.image),
+      width: inputImage.width,
+      height: inputImage.height,
+    };
+  }
+
+  if (inputImage.colorType === 6) {
+    return {
+      arr: inputImage.image,
+      width: inputImage.width,
+      height: inputImage.height,
+    };
+  }
+
+  throw new Error(`Image has unimplemented colorType=${inputImage.colorType}`);
+}
+
+function rgbToRgba(rgb: Uint8Array): Uint8ClampedArray {
+  const pixelCount = rgb.length / 3;
+  const rgba = new Uint8ClampedArray(pixelCount * 4);
+  for (let i = 0; i < pixelCount; i++) {
+    rgba[i * 4 + 0] = rgba[i * 3 + 0];
+    rgba[i * 4 + 1] = rgba[i * 3 + 1];
+    rgba[i * 4 + 2] = rgba[i * 3 + 2];
+    rgba[i * 4 + 3] = 255;
+  }
+  return rgba;
+}
