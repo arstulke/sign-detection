@@ -7,24 +7,24 @@ import {
   ProcessFrameTaskOutput,
 } from "./types.ts";
 
-export type WasmBinaryLoader = () => Promise<Uint8Array>;
+export type WasmFileLoader = (filename: string) => Promise<Uint8Array>;
 
-export async function loadWasmBinary(
+export async function loadWasmFile(
   urlOrString: URL | string,
-): ReturnType<WasmBinaryLoader> {
+): ReturnType<WasmFileLoader> {
   const response = await fetch(urlOrString);
   if (!response.ok) {
-    throw new Error(`Could not fetch WASM file from "${urlOrString}"`);
+    throw new Error(`Could not fetch file from "${urlOrString}"`);
   }
 
   const arrayBuffer = await response.arrayBuffer();
   return new Uint8Array(arrayBuffer);
 }
 
-const DefaultWasmBinaryLoader: WasmBinaryLoader = async () => {
-  const url = new URL("./wasm-build/main.wasm", import.meta.url);
+const DefaultWasmFileLoader: WasmFileLoader = async (filename: string) => {
+  const url = new URL("./wasm-build/" + filename, import.meta.url);
   try {
-    return await loadWasmBinary(url);
+    return await loadWasmFile(url);
   } catch {
     // dnt-shim-ignore
     return await Deno.readFile(url);
@@ -70,9 +70,9 @@ export class InternalSignDetector {
 
   private wasmInstance: CustomWasmInstance;
 
-  constructor(wasmBinaryLoader: WasmBinaryLoader = DefaultWasmBinaryLoader) {
+  constructor(wasmFileLoader: WasmFileLoader = DefaultWasmFileLoader) {
     this.loaded = (async () => {
-      const wasmBinary = await wasmBinaryLoader();
+      const wasmBinary = await wasmFileLoader("main.wasm");
       this.wasmInstance = await instantiateWasm({ wasmBinary });
     })();
   }

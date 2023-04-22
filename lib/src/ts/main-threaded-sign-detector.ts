@@ -1,7 +1,7 @@
 import { Frame, ISignDetector, ProcessFrameResult } from "./types.ts";
 import {
   InternalSignDetector,
-  WasmBinaryLoader,
+  WasmFileLoader,
 } from "./internal-sign-detector.ts";
 import { formatWithStorageUnit } from "./format-utils.ts";
 
@@ -9,9 +9,9 @@ export class MainThreadedSignDetector implements ISignDetector {
   private readonly internalSignDetector: InternalSignDetector;
 
   constructor(
-    wasmBinaryLoader?: WasmBinaryLoader,
+    wasmFileLoader?: WasmFileLoader,
   ) {
-    this.internalSignDetector = new InternalSignDetector(wasmBinaryLoader);
+    this.internalSignDetector = new InternalSignDetector(wasmFileLoader);
   }
 
   async start() {

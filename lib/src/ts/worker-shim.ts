@@ -1,15 +1,16 @@
-interface DocumentShim {
-  baseURI: string;
-}
-
 interface SelfShim {
-  window?: {};
-  document?: DocumentShim;
+  window?: {
+    location: Location;
+    encodeURIComponent: typeof encodeURIComponent;
+  };
+  document?: {
+    baseURI: string;
+  };
 }
 
 const shimmedSelf: SelfShim = self;
 if (!shimmedSelf.window) {
-  shimmedSelf.window = {};
+  shimmedSelf.window = { location, encodeURIComponent };
 }
 if (!shimmedSelf.document && location) {
   shimmedSelf.document = { baseURI: location.origin };

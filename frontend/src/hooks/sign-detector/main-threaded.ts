@@ -1,11 +1,11 @@
 import {
 	ISignDetector,
-	loadWasmBinary,
+	loadWasmFile,
 	MainThreadedSignDetector,
 } from "sign-detection-lib";
 
 export function createMainThreadedSignDetector(): ISignDetector {
-	return new MainThreadedSignDetector(() => {
-		return loadWasmBinary("assets/main.wasm");
+	return new MainThreadedSignDetector((filename: string) => {
+		return loadWasmFile("assets/" + filename);
 	});
 }

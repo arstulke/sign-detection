@@ -2,6 +2,9 @@
 
 docker_tag=${1:-latest}
 
+# generate c++ assets
+./generate-assets.ts
+
 # compile c++ to wasm
 mkdir -p ./src/ts/wasm-build/
 rm -rf ./src/ts/wasm-build/*
@@ -28,6 +31,14 @@ docker run \
         -sEXPORTED_FUNCTIONS=[] \
         -sENVIRONMENT=web \
         -sEXPORT_ES6=1
+
+local_user=$(id -u):$(id -g)
+docker run \
+    --rm \
+    -v $(pwd):/data \
+    -w /data \
+    ghcr.io/arstulke/sign-detection/emscripten-opencv:$docker_tag \
+        chown -R ${local_user} ./src/ts/wasm-build/
 
 # package as npm
 rm -rf ./npm/*
