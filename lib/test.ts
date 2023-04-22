@@ -14,7 +14,8 @@ const fileArgument = Deno.args[0];
 const inputDir = "img/in";
 const outputDir = "img/out";
 const workerThreads = 10;
-const isMultiThreaded = workerThreads >= 1 && !fileArgument;
+const isSingleFile = !!fileArgument;
+const isMultiThreaded = workerThreads >= 1 && !isSingleFile;
 
 const signDetector: ISignDetector = isMultiThreaded
   ? new MultiThreadedSignDetector()
@@ -48,7 +49,7 @@ async function processDirEntry(dirEntry: Deno.DirEntry): Promise<void> {
   const inputPath = join(inputDir, filename);
   const outputPath = join(outputDir, filename);
 
-  if (fileArgument && fileArgument !== filename) {
+  if (isSingleFile && fileArgument !== filename) {
     return;
   }
 
@@ -71,6 +72,9 @@ async function processDirEntry(dirEntry: Deno.DirEntry): Promise<void> {
     console.log(`  ✓ exported          "${inputPath}" as "${outputPath}"`);
   } catch (err) {
     console.log(`  x failed to process "${inputPath}"`);
+    if (isSingleFile) {
+      console.log(err);
+    }
   }
 }
 
