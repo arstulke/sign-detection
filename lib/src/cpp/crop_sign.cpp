@@ -30,7 +30,7 @@ void cropQuadraliteralSign(cv::Mat &src, cv::Mat &dst, std::vector<cv::Point2i> 
     cv::Mat transform_contour_mat = cv::getPerspectiveTransform(src_corners, dst_corners, cv::DECOMP_LU);
     std::vector<cv::Point2f> transformed_contour;
     cv::perspectiveTransform(contour, transformed_contour, transform_contour_mat);
-    cv::Size transformed_contour_size = cv::Size(bounding_box_approx.width + 2 * x_border, bounding_box_approx.height + 2 * y_border);
+    cv::Size transformed_contour_size = cv::Size(approx_size + 2 * x_border, approx_size + 2 * y_border);
 
     // approximate transformed contour
     std::vector<cv::Point2f> transformed_approximated_contour;
@@ -50,7 +50,7 @@ void cropQuadraliteralSign(cv::Mat &src, cv::Mat &dst, std::vector<cv::Point2i> 
         {transformed_size + x_border, transformed_size + y_border},
         {x_border, transformed_size + y_border}};
     cv::Mat transform_image_mat = cv::getPerspectiveTransform(src_corners, dst_corners, cv::DECOMP_LU);
-    cv::Size transformed_image_size = cv::Size(bounding_box_transformed.width + 2 * x_border, bounding_box_transformed.height + 2 * y_border);
+    cv::Size transformed_image_size = cv::Size(transformed_size + 2 * x_border, transformed_size + 2 * y_border);
 
     // warp image
     cv::Mat tmp;

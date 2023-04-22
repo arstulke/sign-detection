@@ -28,7 +28,8 @@ void processPotentialSign(cv::Mat &src, cv::Mat &dst, std::vector<cv::Point2i> c
         cropQuadraliteralSign(src, cropped, contour, approximated_contour);
 
         // copy cropped to top center
-        cropped.copyTo(dst(cv::Rect((dst.cols - cropped.cols) / 2, 0, cropped.cols, cropped.rows)));
+        dst = cropped;
+        // cropped.copyTo(dst(cv::Rect((dst.cols - cropped.cols) / 2, 0, cropped.cols, cropped.rows)));
     } else {
         return;
     }
