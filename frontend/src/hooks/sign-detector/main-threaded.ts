@@ -6,6 +6,6 @@ import {
 
 export function createMainThreadedSignDetector(): ISignDetector {
 	return new MainThreadedSignDetector((filename: string) => {
-		return loadWasmFile("assets/" + filename);
+		return loadWasmFile(`assets/${filename}`);
 	});
 }
