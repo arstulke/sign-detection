@@ -19,13 +19,13 @@ void processPotentialSign(cv::Mat &src, cv::Mat &dst, std::vector<cv::Point2i> c
 
     // approximate contour and count vertices
     std::vector<cv::Point2i> approximated_contour;
-    cv::approxPolyDP(contour, approximated_contour, polygon.getPerimeter() * 0.0125, true);
+    cv::approxPolyDP(polygon.clockwiseContour, approximated_contour, polygon.getPerimeter() * 0.0125, true);
     int vertices_count = (int) approximated_contour.size();
 
     // determine shape of approximated contour and crop sign
     cv::Mat cropped;
     if (vertices_count == 4) {
-        cropQuadraliteralSign(src, cropped, contour, approximated_contour);
+        cropQuadraliteralSign(src, cropped, polygon.clockwiseContour, approximated_contour);
     } else {
         return;
     }

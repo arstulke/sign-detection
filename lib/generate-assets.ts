@@ -30,11 +30,11 @@ async function generateSignPatterns(): Promise<string> {
   const promises: Promise<string>[] = [
     {
       name: "fireExtinguisher1",
-      filename: "img/patterns/unimplemented.png",
+      filename: "img/patterns/fire-extinguisher-1.png",
     },
     {
       name: "fireExtinguisher2",
-      filename: "img/patterns/unimplemented.png",
+      filename: "img/patterns/fire-extinguisher-2.png",
     },
     {
       name: "firstAid",

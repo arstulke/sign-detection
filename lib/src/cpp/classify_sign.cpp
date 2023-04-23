@@ -4,6 +4,11 @@
 #include "classify_sign.hpp"
 #include "operators/colorized_canny.hpp"
 
+void writeLabel(cv::Mat &dst, std::string label)
+{
+    cv::putText(dst, label, cv::Point2i(10, dst.rows / 2), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255, 0, 0, 255), 2);
+}
+
 // TODO how to return sign_class
 void classifySign(cv::Mat &cropped, cv::Mat &dst, std::vector<cv::Point2i> contour)
 {
@@ -19,18 +24,22 @@ void classifySign(cv::Mat &cropped, cv::Mat &dst, std::vector<cv::Point2i> conto
     if (fireExtinguisher1.match(sign))
     {
         printf("fireExtinguisher1 is matching\n");
+        writeLabel(dst, "fireExthinguisher1");
     }
     else if (fireExtinguisher2.match(sign))
     {
         printf("fireExtinguisher2 is matching\n");
+        writeLabel(dst, "fireExthinguisher2");
     }
     else if (firstAid.match(sign))
     {
         printf("firstAid is matching\n");
+        writeLabel(dst, "firstAid");
     }
     else
     {
         printf("no matching sign found\n");
+        writeLabel(dst, "noMatch");
         return;
     }
 

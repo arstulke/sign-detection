@@ -5,13 +5,14 @@
 
 class Polygon {
     public:
+        std::vector<cv::Point2i> contour;
+        std::vector<cv::Point2i> clockwiseContour;
+
         Polygon(std::vector<cv::Point2i> contour);
         double getArea();
         double getPerimeter();
         double getCompactness();
     private:
-        std::vector<cv::Point2i> contour;
-
         double area;
         bool is_area_defined;
 

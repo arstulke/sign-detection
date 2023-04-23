@@ -4,6 +4,11 @@ Polygon::Polygon(std::vector<cv::Point2i> contour) {
     this->contour = contour;
     this->is_area_defined = false;
     this->is_perimeter_defined = false;
+
+    this->clockwiseContour = contour;
+    if (cv::contourArea(contour, true) < 0) {
+        std::reverse(this->clockwiseContour.begin(), this->clockwiseContour.end());
+    }
 }
 
 double Polygon::getArea() {
