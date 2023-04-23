@@ -6,13 +6,30 @@
 
 void drawContour(cv::Mat &dst, std::vector<cv::Point2i> contour)
 {
+    // TODO add second color for constrast
+    // TODO increase thickness
+    int thickness = std::max((int) round(2.6 / 1000 * dst.rows), 2);
+
     std::vector<std::vector<cv::Point2i>> contours = {contour};
-    cv::drawContours(dst, contours, 0, cv::Scalar(0, 0, 255, 255), 2, cv::LINE_8);
+    cv::Scalar color = cv::Scalar(0, 0, 255, 255);
+    cv::drawContours(dst, contours, 0, color, thickness, cv::LINE_8);
 }
 
-void writeLabel(cv::Mat &dst, std::string label)
+void writeLabel(cv::Mat &dst, std::string label, std::vector<cv::Point2i> contour)
 {
-    cv::putText(dst, label, cv::Point2i(10, dst.rows / 2), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255, 0, 0, 255), 2);
+    // TODO add second color for constrast
+    // TODO increase thickness
+    int fontFace = cv::FONT_HERSHEY_SIMPLEX;
+    double fontScale = std::max(1.3 / 1000 * dst.rows, 1.0);
+    int thickness = fontScale * 2;
+    int baseline = 0;
+    cv::Size textSize = cv::getTextSize(label, fontFace, fontScale, thickness, &baseline);
+
+    cv::Rect boundingBox = cv::boundingRect(contour);
+    int x = boundingBox.x + (boundingBox.width - textSize.width) / 2;
+    int y = boundingBox.y + (boundingBox.height + textSize.height) / 2;
+    cv::Scalar color = cv::Scalar(255, 0, 0, 255);
+    cv::putText(dst, label, cv::Point2i(x, y), fontFace, fontScale, color, thickness);
 }
 
 // TODO how to return sign_class
@@ -26,7 +43,7 @@ void classifySign(cv::Mat &cropped, cv::Mat &dst, std::vector<cv::Point2i> conto
     // TODO rotate 4 times
     // TODO compare only with quadraliteral signs
 
-    // TODO position sign class label
+    // check if sign patterns are matching
     SignPattern signPattern = UNKNOWN_SIGN_PATTERN;
     for (size_t i = 0; i < signPatterns.size(); i++)
     {
@@ -37,8 +54,9 @@ void classifySign(cv::Mat &cropped, cv::Mat &dst, std::vector<cv::Point2i> conto
             break;
         }
     }
-    printf("detected type: %s\n", signPattern.name.c_str());
 
+    // mark matching result
+    printf("detected type: %s\n", signPattern.name.c_str());
     drawContour(dst, contour);
-    writeLabel(dst, signPattern.name);
+    writeLabel(dst, signPattern.name, contour);
 }

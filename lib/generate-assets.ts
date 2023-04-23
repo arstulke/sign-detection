@@ -43,8 +43,8 @@ async function generateSignPatterns(): Promise<string> {
   const promises: Promise<string>[] = signPatterns
     .map(({ name, filename }) => generateSingleSignPattern(name, filename));
 
-  const signPatternArrayString = "" + 
-`const std::vector<const SignPattern> signPatterns = {
+  const signPatternArrayString = "" +
+    `const std::vector<const SignPattern> signPatterns = {
   ${signPatterns.map(({ name }) => name).join(",\n  ")}
 };`;
 
@@ -70,7 +70,7 @@ async function generateSingleSignPattern(
   console.log(`  ⚙ generating "${name}"`);
   const indexValuesBeforeLineBreak = width * signPatternsValuesPerPixel;
   const arr: string[] = [];
-  for (let i = 0; i < image.byteLength; i+=4) {
+  for (let i = 0; i < image.byteLength; i += 4) {
     const v = image[i];
     arr.push(`${v}`.padStart(3, " "));
     if ((i + signPatternsValuesPerPixel) % indexValuesBeforeLineBreak == 0) {
