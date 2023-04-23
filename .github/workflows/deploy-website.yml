@@ -70,6 +70,16 @@ jobs:
         run: ./build.sh ${{ github.ref_name }}
         working-directory: lib/
 
+      - name: Test library
+        run: ./test.ts
+        working-directory: lib/
+      - name: Upload test output as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-output
+          path: lib/img/out/
+          retention-days: 7
+
       - name: Install frontend deps
         run: |
           npm install
