@@ -14,46 +14,23 @@ void cropQuadraliteralSign(cv::Mat &src, cv::Mat &dst, std::vector<cv::Point2i> 
     std::vector<cv::Point2f> dst_corners(4);
     float relative_border, absolute_border, x_border, y_border;
 
-    // transform contour
-    cv::Rect bounding_box_approx = cv::boundingRect(approximated_contour_i);
-    float approx_size = bounding_box_approx.width > bounding_box_approx.height ? bounding_box_approx.width : bounding_box_approx.height;
-    relative_border = 0.1;
-    absolute_border = 0;
-    x_border = (int)(approx_size * relative_border + absolute_border);
-    y_border = (int)(approx_size * relative_border + absolute_border);
+    // transform image
+    float transformed_size = 256;
+    x_border = 5;
+    y_border = x_border;
     src_corners = approximated_contour;
     dst_corners = {
         {x_border, y_border},
-        {approx_size + x_border, y_border},
-        {approx_size + x_border, approx_size + y_border},
-        {x_border, approx_size + y_border}};
-    cv::Mat transform_contour_mat = cv::getPerspectiveTransform(src_corners, dst_corners, cv::DECOMP_LU);
-    std::vector<cv::Point2f> transformed_contour;
-    cv::perspectiveTransform(contour, transformed_contour, transform_contour_mat);
-    cv::Size transformed_contour_size = cv::Size(approx_size + 2 * x_border, approx_size + 2 * y_border);
-
-    // approximate transformed contour
-    std::vector<cv::Point2f> transformed_approximated_contour;
-    cv::approxPolyDP(transformed_contour, transformed_approximated_contour, cv::arcLength(transformed_contour, true) * 0.0125, true);
-
-    // transform image
-    cv::Rect bounding_box_transformed = cv::boundingRect(transformed_contour);
-    float transformed_size = bounding_box_transformed.width > bounding_box_transformed.height ? bounding_box_transformed.width : bounding_box_transformed.height;
-    relative_border = 0.015;
-    absolute_border = 0;
-    x_border = (int)(transformed_size * relative_border + absolute_border);
-    y_border = (int)(transformed_size * relative_border + absolute_border);
-    src_corners = transformed_approximated_contour;
-    dst_corners = {
-        {x_border, y_border},
-        {transformed_size + x_border, y_border},
-        {transformed_size + x_border, transformed_size + y_border},
-        {x_border, transformed_size + y_border}};
+        {transformed_size - x_border, y_border},
+        {transformed_size - x_border, transformed_size - y_border},
+        {x_border, transformed_size - y_border}};
     cv::Mat transform_image_mat = cv::getPerspectiveTransform(src_corners, dst_corners, cv::DECOMP_LU);
-    cv::Size transformed_image_size = cv::Size(transformed_size + 2 * x_border, transformed_size + 2 * y_border);
+    cv::Size transformed_image_size = cv::Size(transformed_size, transformed_size);
+
+    // prepare dst
+    dst = cv::Mat::zeros(transformed_image_size, CV_8UC4);
 
     // warp image
     cv::Mat tmp;
-    cv::warpPerspective(src, tmp, transform_contour_mat, transformed_contour_size);
-    cv::warpPerspective(tmp, dst, transform_image_mat, transformed_image_size);
+    cv::warpPerspective(src, dst, transform_image_mat, transformed_image_size);
 }

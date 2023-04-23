@@ -18,7 +18,7 @@ async function generateAssets(): Promise<void> {
     `#include <opencv2/imgproc.hpp>
 
 #include "assets.hpp"
-#include "models/sign_pattern.hpp"
+#include "models/sign.hpp"
 
 ${signPatterns}
 `;
@@ -26,15 +26,15 @@ ${signPatterns}
 }
 
 async function generateSignPatterns(): Promise<string> {
-  console.log(`⚙ processing patterns"`);
+  console.log(`⚙ processing patterns`);
   const promises: Promise<string>[] = [
     {
       name: "fireExtinguisher1",
-      filename: "img/patterns/first-aid.png",
+      filename: "img/patterns/unimplemented.png",
     },
     {
       name: "fireExtinguisher2",
-      filename: "img/patterns/first-aid.png",
+      filename: "img/patterns/unimplemented.png",
     },
     {
       name: "firstAid",
@@ -45,7 +45,7 @@ async function generateSignPatterns(): Promise<string> {
   const results = await Promise.all(promises);
   const result = results.join("\n\n");
 
-  console.log(`✓ processed patterns"`);
+  console.log(`✓ processed patterns`);
   return result;
 }
 
@@ -80,7 +80,7 @@ async function generateSingleSignPattern(
   ${arr.join("")}
 };
 cv::Mat ${name}_canny_rgba = cv::Mat(${height}, ${width}, CV_8UC4, reinterpret_cast<void*>(${name}_canny_array));
-const SignPattern ${name} = SignPattern(${name}_canny_rgba);`;
+const SignPattern ${name} = createSignPatternForRgba(${name}_canny_rgba);`;
 
   console.log(`  ✓ generated  "${name}"`);
   return signPattern;

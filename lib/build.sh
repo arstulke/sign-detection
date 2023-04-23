@@ -26,6 +26,7 @@ docker run \
         -sWASM=1 \
         -sLLD_REPORT_UNDEFINED \
         -sERROR_ON_UNDEFINED_SYMBOLS=0 \
+        -sNO_DISABLE_EXCEPTION_CATCHING \
         -sTOTAL_MEMORY=4MB \
         -sALLOW_MEMORY_GROWTH \
         -sEXPORTED_FUNCTIONS=[] \

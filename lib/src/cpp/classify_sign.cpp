@@ -7,15 +7,32 @@
 // TODO how to return sign_class
 void classifySign(cv::Mat &cropped, cv::Mat &dst, std::vector<cv::Point2i> contour)
 {
-    cv::cvtColor(firstAid.canny, dst, cv::COLOR_GRAY2RGBA);
-    printf("w=%d,h=%d\n", dst.cols, dst.rows);
-    return;
-
     // calculate colorized canny
-    cv::Mat tmp;
     cv::Mat canny;
-    colorizedCanny(cropped, tmp, 75, 150);
-    cv::cvtColor(tmp, canny, cv::COLOR_GRAY2RGBA);
+    colorizedCanny(cropped, canny, 75, 150);
+    Sign sign = Sign(canny);
+
+    // TODO compare
+    // rotate 4 times
+    // compare only with quadraliteral signs
+
+    if (fireExtinguisher1.match(sign))
+    {
+        printf("fireExtinguisher1 is matching\n");
+    }
+    else if (fireExtinguisher2.match(sign))
+    {
+        printf("fireExtinguisher2 is matching\n");
+    }
+    else if (firstAid.match(sign))
+    {
+        printf("firstAid is matching\n");
+    }
+    else
+    {
+        printf("no matching sign found\n");
+        return;
+    }
 
     // TODO write sign class
     // cv::Scalar color1 = cv::Scalar(rng.uniform(0, 256), rng.uniform(0, 256), rng.uniform(0, 256), 255);
@@ -29,6 +46,7 @@ void classifySign(cv::Mat &cropped, cv::Mat &dst, std::vector<cv::Point2i> conto
     }
     */
 
+    return;
     cv::Mat dst_part = canny;
     dst_part.copyTo(dst(cv::Rect((dst.cols - dst_part.cols) / 2, 0, dst_part.cols, dst_part.rows)));
     printf("breakpoint99\n");

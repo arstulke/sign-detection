@@ -1,5 +1,5 @@
 #ifndef ASSETS
-#include "models/sign_pattern.hpp"
+#include "models/sign.hpp"
 
 #define ASSETS
 

@@ -26,10 +26,13 @@ void locateSigns(cv::Mat &src, cv::Mat &dst)
     // find contours in colorized canny output
     std::vector<std::vector<cv::Point2i>> contours;
     std::vector<cv::Vec4i> hierarchy;
-    cv::findContours(canny_output, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_NONE);
+    cv::findContours(canny_output, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);
 
     for (size_t i = 0; i < contours.size(); i++)
     {
-        processPotentialSign(src, dst, contours.at(i), sign_area_threshold);
+        if (hierarchy[i][3] == -1) // has no parent
+        {
+            processPotentialSign(src, dst, contours.at(i), sign_area_threshold);
+        }
     }
 }

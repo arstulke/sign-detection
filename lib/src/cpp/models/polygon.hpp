@@ -1,7 +1,7 @@
 #include <opencv2/imgproc.hpp>
 
-#ifndef MODELS_POLYGON
-#define MODELS_POYLGON
+#ifndef MODELS__POLYGON
+#define MODELS__POYLGON
 
 class Polygon {
     public:
