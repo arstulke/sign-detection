@@ -13,7 +13,7 @@ const fileArgument = Deno.args[0];
 
 const inputDir = "img/in";
 const outputDir = "img/out";
-const workerThreads = 10;
+const workerThreads = 1; // TODO fixing multithreaded
 const isSingleFile = !!fileArgument;
 const isMultiThreaded = workerThreads >= 1 && !isSingleFile;
 
