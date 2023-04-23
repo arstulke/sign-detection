@@ -18,9 +18,10 @@ export class MultiThreadedSignDetector implements ISignDetector {
   constructor(
     private readonly threadCount: number = 1,
     signDetectorWorker: WorkerConstructor = DefaultSignDetectorWorker,
+    discardWaitingValues: boolean = true,
   ) {
     this.pool = new WorkerPool(signDetectorWorker, {
-      maxWaitingValues: 1,
+      maxWaitingValues: discardWaitingValues ? 1 : undefined,
       deleteWaitingValueAction: "first",
     });
   }

@@ -13,12 +13,12 @@ const fileArgument = Deno.args[0];
 
 const inputDir = "img/in";
 const outputDir = "img/out";
-const workerThreads = 1; // TODO fixing multithreaded
+const workerThreads = 3;
 const isSingleFile = !!fileArgument;
 const isMultiThreaded = workerThreads >= 1 && !isSingleFile;
 
 const signDetector: ISignDetector = isMultiThreaded
-  ? new MultiThreadedSignDetector()
+  ? new MultiThreadedSignDetector(workerThreads, undefined, false)
   : new MainThreadedSignDetector();
 await signDetector.start();
 await processInputDir();
