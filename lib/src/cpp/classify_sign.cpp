@@ -21,24 +21,20 @@ void classifySign(cv::Mat &cropped, cv::Mat &dst, std::vector<cv::Point2i> conto
     // TODO compare only with quadraliteral signs
 
     // TODO position sign class label
+    bool match = false;
+    SignPattern signPattern = UNKNOWN_SIGN_PATTERN;
+    for (size_t i = 0; i < signPatterns.size(); i++) {
+        signPattern = signPatterns[i];
+        if (signPattern.match(sign))
+        {
+            printf("pattern %d is matching\n", (int) i);
+            writeLabel(dst, "pattern_" + std::to_string((int) i));
+            match = true;
+            break;
+        }
+    }
 
-    if (fireExtinguisher1.match(sign))
-    {
-        printf("fireExtinguisher1 is matching\n");
-        writeLabel(dst, "fireExthinguisher1");
-    }
-    else if (fireExtinguisher2.match(sign))
-    {
-        printf("fireExtinguisher2 is matching\n");
-        writeLabel(dst, "fireExthinguisher2");
-    }
-    else if (firstAid.match(sign))
-    {
-        printf("firstAid is matching\n");
-        writeLabel(dst, "firstAid");
-    }
-    else
-    {
+    if (!match) {
         printf("no matching sign found\n");
         writeLabel(dst, "unknown");
     }

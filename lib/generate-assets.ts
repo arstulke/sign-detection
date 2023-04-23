@@ -14,8 +14,7 @@ generateAssets();
 
 async function generateAssets(): Promise<void> {
   const signPatterns = await generateSignPatterns();
-  const assets =
-    `#include <opencv2/imgproc.hpp>
+  const assets = `#include <opencv2/imgproc.hpp>
 
 #include "assets.hpp"
 #include "models/sign.hpp"
@@ -27,7 +26,7 @@ ${signPatterns}
 
 async function generateSignPatterns(): Promise<string> {
   console.log(`⚙ processing patterns`);
-  const promises: Promise<string>[] = [
+  const signPatterns = [
     {
       name: "fireExtinguisher1",
       filename: "img/patterns/fire-extinguisher-1.png",
@@ -40,9 +39,17 @@ async function generateSignPatterns(): Promise<string> {
       name: "firstAid",
       filename: "img/patterns/first-aid.png",
     },
-  ].map(({ name, filename }) => generateSingleSignPattern(name, filename));
+  ];
+  const promises: Promise<string>[] = signPatterns
+    .map(({ name, filename }) => generateSingleSignPattern(name, filename));
 
-  const results = await Promise.all(promises);
+  const signPatternArrayString = "" + 
+`const std::vector<const SignPattern> signPatterns = {
+  ${signPatterns.map(({ name }) => name).join(",\n  ")}
+};`;
+
+  const results: string[] = await Promise.all(promises);
+  results.push(signPatternArrayString);
   const result = results.join("\n\n");
 
   console.log(`✓ processed patterns`);
@@ -61,26 +68,24 @@ async function generateSingleSignPattern(
   }
 
   console.log(`  ⚙ generating "${name}"`);
+  const indexValuesBeforeLineBreak = width * signPatternsValuesPerPixel;
   const arr: string[] = [];
-  for (let i = 0; i < image.byteLength; i++) {
+  for (let i = 0; i < image.byteLength; i+=4) {
     const v = image[i];
-    arr.push(`${v}`.padStart(3, " ")); // );
-    if ((i + 1) % signPatternsValuesPerLine == 0) {
+    arr.push(`${v}`.padStart(3, " "));
+    if ((i + signPatternsValuesPerPixel) % indexValuesBeforeLineBreak == 0) {
       arr.push(",\n  ");
-    } else if ((i + 1) % signPatternsValuesPerPixel == 0) {
-      arr.push(",     ");
     } else {
       arr.push(", ");
     }
   }
 
   arr.pop();
-  const signPattern =
-    `uint8_t ${name}_canny_array[] = {
+  const signPattern = `uint8_t ${name}_canny_array[] = {
   ${arr.join("")}
 };
-cv::Mat ${name}_canny_rgba = cv::Mat(${height}, ${width}, CV_8UC4, reinterpret_cast<void*>(${name}_canny_array));
-const SignPattern ${name} = createSignPatternForRgba(${name}_canny_rgba);`;
+cv::Mat ${name}_canny = cv::Mat(${height}, ${width}, CV_8UC1, reinterpret_cast<void*>(${name}_canny_array));
+const SignPattern ${name} = SignPattern(${name}_canny);`;
 
   console.log(`  ✓ generated  "${name}"`);
   return signPattern;

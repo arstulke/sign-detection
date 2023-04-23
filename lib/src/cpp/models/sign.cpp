@@ -14,13 +14,6 @@ Sign::Sign(cv::Mat canny)
 }
 
 // SignPattern
-SignPattern createSignPatternForRgba(cv::Mat cannyRgba)
-{
-  cv::Mat canny;
-  cv::cvtColor(cannyRgba, canny, cv::COLOR_RGBA2GRAY);
-  return SignPattern(canny);
-}
-
 bool SignPattern::match(Sign other) const
 {
   // erase: result = (normal - dilated)

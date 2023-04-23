@@ -17,6 +17,6 @@ public:
     bool match(Sign other) const;
 };
 
-SignPattern createSignPatternForRgba(cv::Mat cannyRgba);
+const SignPattern UNKNOWN_SIGN_PATTERN = SignPattern(cv::Mat::zeros(1, 1, CV_8UC1));
 
 #endif
