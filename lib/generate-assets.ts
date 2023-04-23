@@ -85,7 +85,7 @@ async function generateSingleSignPattern(
   ${arr.join("")}
 };
 cv::Mat ${name}_canny = cv::Mat(${height}, ${width}, CV_8UC1, reinterpret_cast<void*>(${name}_canny_array));
-const SignPattern ${name} = SignPattern(${name}_canny);`;
+const SignPattern ${name} = SignPattern(${name}_canny, "${name}");`;
 
   console.log(`  ✓ generated  "${name}"`);
   return signPattern;

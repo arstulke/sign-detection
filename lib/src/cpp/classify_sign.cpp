@@ -4,6 +4,12 @@
 #include "classify_sign.hpp"
 #include "operators/colorized_canny.hpp"
 
+void drawContour(cv::Mat &dst, std::vector<cv::Point2i> contour)
+{
+    std::vector<std::vector<cv::Point2i>> contours = {contour};
+    cv::drawContours(dst, contours, 0, cv::Scalar(0, 0, 255, 255), 2, cv::LINE_8);
+}
+
 void writeLabel(cv::Mat &dst, std::string label)
 {
     cv::putText(dst, label, cv::Point2i(10, dst.rows / 2), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255, 0, 0, 255), 2);
@@ -21,26 +27,18 @@ void classifySign(cv::Mat &cropped, cv::Mat &dst, std::vector<cv::Point2i> conto
     // TODO compare only with quadraliteral signs
 
     // TODO position sign class label
-    bool match = false;
     SignPattern signPattern = UNKNOWN_SIGN_PATTERN;
-    for (size_t i = 0; i < signPatterns.size(); i++) {
-        signPattern = signPatterns[i];
-        if (signPattern.match(sign))
+    for (size_t i = 0; i < signPatterns.size(); i++)
+    {
+        SignPattern currentSignPattern = signPatterns[i];
+        if (currentSignPattern.match(sign))
         {
-            printf("pattern %d is matching\n", (int) i);
-            writeLabel(dst, "pattern_" + std::to_string((int) i));
-            match = true;
+            signPattern = currentSignPattern;
             break;
         }
     }
+    printf("detected type: %s\n", signPattern.name.c_str());
 
-    if (!match) {
-        printf("no matching sign found\n");
-        writeLabel(dst, "unknown");
-    }
-
-    // TODO write sign class
-    cv::Scalar color1 = cv::Scalar(0, 0, 255, 255);
-    std::vector<std::vector<cv::Point2i>> contours = {contour};
-    cv::drawContours(dst, contours, 0, color1, 2, cv::LINE_8);
+    drawContour(dst, contour);
+    writeLabel(dst, signPattern.name);
 }

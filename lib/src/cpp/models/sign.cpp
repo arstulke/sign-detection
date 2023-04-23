@@ -14,6 +14,11 @@ Sign::Sign(cv::Mat canny)
 }
 
 // SignPattern
+SignPattern::SignPattern(cv::Mat canny, std::string name) : Sign(canny)
+{
+  this->name = name;
+}
+
 bool SignPattern::match(Sign other) const
 {
   // erase: result = (normal - dilated)

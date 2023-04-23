@@ -8,15 +8,19 @@ class Sign
 public:
     cv::Mat canny;
     cv::Mat invertedDilated;
+
     Sign(cv::Mat canny);
 };
 
-class SignPattern : public Sign {
+class SignPattern : public Sign
+{
 public:
-    using Sign::Sign;
+    std::string name;
+
+    SignPattern(cv::Mat canny, std::string name);
     bool match(Sign other) const;
 };
 
-const SignPattern UNKNOWN_SIGN_PATTERN = SignPattern(cv::Mat::zeros(1, 1, CV_8UC1));
+const SignPattern UNKNOWN_SIGN_PATTERN = SignPattern(cv::Mat::zeros(1, 1, CV_8UC1), "unknown");
 
 #endif
