@@ -10,14 +10,18 @@ cv::RNG rng(12345);
 // TODO array for describing detected signs?
 void locateSigns(cv::Mat &src, cv::Mat &dst)
 {
+    // TODO resize to fixed size
+
     // writer src image as grayscale to dst
     cv::Mat gray;
     cv::cvtColor(src, gray, cv::COLOR_RGBA2GRAY);
     cv::cvtColor(gray, dst, cv::COLOR_GRAY2RGBA);
 
     // calculate colorized canny
+    cv::Mat gaussian;
     cv::Mat canny_output;
-    colorizedCanny(src, canny_output, 75, 150);
+    cv::GaussianBlur(src, gaussian, cv::Size(9, 9), 0);
+    colorizedCanny(gaussian, canny_output, 75, 150);
 
     // calculate area threshold for potential sign
     double image_area = src.cols * src.rows;
@@ -30,7 +34,7 @@ void locateSigns(cv::Mat &src, cv::Mat &dst)
 
     for (size_t i = 0; i < contours.size(); i++)
     {
-        if (hierarchy[i][3] == -1) // has no parent
+        if (hierarchy[i][3] == -1) // if has no parent
         {
             processPotentialSign(src, dst, contours.at(i), sign_area_threshold);
         }

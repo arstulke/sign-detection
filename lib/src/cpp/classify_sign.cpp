@@ -17,9 +17,10 @@ void classifySign(cv::Mat &cropped, cv::Mat &dst, std::vector<cv::Point2i> conto
     colorizedCanny(cropped, canny, 75, 150);
     Sign sign = Sign(canny);
 
-    // TODO compare
-    // rotate 4 times
-    // compare only with quadraliteral signs
+    // TODO rotate 4 times
+    // TODO compare only with quadraliteral signs
+
+    // TODO position sign class label
 
     if (fireExtinguisher1.match(sign))
     {
@@ -39,24 +40,11 @@ void classifySign(cv::Mat &cropped, cv::Mat &dst, std::vector<cv::Point2i> conto
     else
     {
         printf("no matching sign found\n");
-        writeLabel(dst, "noMatch");
-        return;
+        writeLabel(dst, "unknown");
     }
 
     // TODO write sign class
-    // cv::Scalar color1 = cv::Scalar(rng.uniform(0, 256), rng.uniform(0, 256), rng.uniform(0, 256), 255);
     cv::Scalar color1 = cv::Scalar(0, 0, 255, 255);
     std::vector<std::vector<cv::Point2i>> contours = {contour};
     cv::drawContours(dst, contours, 0, color1, 2, cv::LINE_8);
-    /*
-    cv::Scalar color2 = cv::Scalar(255, 0, 0, 255);
-    for (int i = 0; i < approximated_contour.size(); i++) {
-        cv::circle(dst, approximated_contour.at(i), 4, color2, -1);
-    }
-    */
-
-    return;
-    cv::Mat dst_part = canny;
-    dst_part.copyTo(dst(cv::Rect((dst.cols - dst_part.cols) / 2, 0, dst_part.cols, dst_part.rows)));
-    printf("breakpoint99\n");
 }

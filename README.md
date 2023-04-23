@@ -11,6 +11,7 @@ processing (correct sign detection):
 - fire-extinguisher-2_synthetic.png
 - fire-extinguisher-2_synthetic2.png
 - first-aid_synthetic-white-bg-modified.png
+- first-aid_synthetic-white-bg.png
 - first-aid_synthetic.png
 
 processing (wrong sign detection):
@@ -19,7 +20,7 @@ processing (wrong sign detection):
 - fire-extinguisher-1_real-reflection-1.png
 - fire-extinguisher-1_real-reflection-2.png
 - fire-extinguisher-2_real-modified.png
+- fire-extinguisher-2_real-modified2.png
 - fire-extinguisher-2_real.png
-- first-aid_synthetic-white-bg.png
 
 failing:

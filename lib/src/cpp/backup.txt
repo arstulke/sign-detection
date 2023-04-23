@@ -1,0 +1,11 @@
+    // generate random color
+    cv::Scalar color1 = cv::Scalar(rng.uniform(0, 256), rng.uniform(0, 256), rng.uniform(0, 256), 255);
+
+    // draw corners of approximated_contour
+    cv::Scalar color2 = cv::Scalar(255, 0, 0, 255);
+    for (int i = 0; i < approximated_contour.size(); i++) {
+        cv::circle(dst, approximated_contour.at(i), 4, color2, -1);
+    }
+
+    // copy smaller image dst_part into dst (at top center)
+    dst_part.copyTo(dst(cv::Rect((dst.cols - dst_part.cols) / 2, 0, dst_part.cols, dst_part.rows)));
