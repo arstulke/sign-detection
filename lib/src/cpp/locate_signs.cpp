@@ -5,8 +5,6 @@
 #include "process_potential_sign.hpp"
 #include "operators/colorized_canny.hpp"
 
-cv::RNG rng(12345);
-
 // TODO array for describing detected signs?
 void locateSigns(cv::Mat &src, cv::Mat &dst)
 {
