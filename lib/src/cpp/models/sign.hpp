@@ -6,12 +6,9 @@
 class Sign
 {
 public:
-    cv::Mat canny;
-    cv::Mat invertedDilated;
-
     int rotationCount;
-    std::vector<cv::Mat> canny_2;
-    std::vector<cv::Mat> invertedDilated_2;
+    std::vector<cv::Mat> canny;
+    std::vector<cv::Mat> invertedDilated;
 
     Sign(cv::Mat canny, int rotationCount);
 };

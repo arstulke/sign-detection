@@ -31,14 +31,11 @@ Sign::Sign(cv::Mat originalCanny, int rotationCount)
   cv::Mat canny, invertedDilated;
   prepareForSign(originalCanny, canny, invertedDilated);
 
-  this->canny = canny;
-  this->invertedDilated = invertedDilated;
-
   this->rotationCount = rotationCount;
-  this->canny_2.resize(rotationCount);
-  this->invertedDilated_2.resize(rotationCount);
-  this->canny_2[0] = canny;
-  this->invertedDilated_2[0] = invertedDilated;
+  this->canny.resize(rotationCount);
+  this->invertedDilated.resize(rotationCount);
+  this->canny[0] = canny;
+  this->invertedDilated[0] = invertedDilated;
 
   double angle = 360.0 / rotationCount;
   for (int i = 1; i < rotationCount; i++)
@@ -46,8 +43,8 @@ Sign::Sign(cv::Mat originalCanny, int rotationCount)
     cv::Mat rotationMatrix = cv::getRotationMatrix2D(cv::Point2f(canny.cols / 2, canny.rows / 2), i * angle, 1.0);
     cv::Mat rotationMatrix2 = cv::getRotationMatrix2D(cv::Point2f(canny.cols / 2, canny.rows / 2), i * angle, 1.0);
 
-    cv::warpAffine(canny, this->canny_2[i], rotationMatrix, canny.size());
-    cv::warpAffine(invertedDilated, this->invertedDilated_2[i], rotationMatrix2, invertedDilated.size());
+    cv::warpAffine(canny, this->canny[i], rotationMatrix, canny.size());
+    cv::warpAffine(invertedDilated, this->invertedDilated[i], rotationMatrix2, invertedDilated.size());
   }
 }
 
@@ -88,7 +85,7 @@ bool SignPattern::match(Sign other) const
   {
     for (int j = 0; j < other.rotationCount; j++)
     {
-      if (matchSingle(this->canny_2[i], this->invertedDilated_2[i], other.canny_2[j], other.invertedDilated_2[j]))
+      if (matchSingle(this->canny[i], this->invertedDilated[i], other.canny[j], other.invertedDilated[j]))
       {
         return true;
       }
