@@ -38,9 +38,9 @@ void classifySign(cv::Mat &cropped, cv::Mat &dst, std::vector<cv::Point2i> conto
     // calculate colorized canny
     cv::Mat canny;
     colorizedCanny(cropped, canny, 75, 150);
-    Sign sign = Sign(canny);
+    Sign sign = Sign(canny, 4);
 
-    // TODO rotate 4 times
+    // TODO add enum for sign shape
     // TODO compare only with quadraliteral signs
 
     // check if sign patterns are matching
