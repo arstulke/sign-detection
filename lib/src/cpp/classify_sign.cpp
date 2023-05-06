@@ -4,18 +4,21 @@
 #include "classify_sign.hpp"
 #include "operators/colorized_canny.hpp"
 
-double getFontScale(cv::Mat img) {
+double getFontScale(cv::Mat img)
+{
     // TODO use image width and height for calculating font size
     return std::max(1.3 / 1000 * img.rows, 1.0);
 }
 
-int getInnerThickness(cv::Mat img) {
+int getInnerThickness(cv::Mat img)
+{
     return 2.0 * getFontScale(img);
 }
 
-int getOuterThickness(cv::Mat img) {
+int getOuterThickness(cv::Mat img)
+{
     int innerThickness = getInnerThickness(img);
-    return innerThickness + std::max((int) (innerThickness * 1.0), 4);
+    return innerThickness + std::max((int)(innerThickness * 1.0), 4);
 }
 
 void drawContour(cv::Mat &dst, std::vector<cv::Point2i> contour)
